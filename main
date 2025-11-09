@@ -4,51 +4,25 @@ local pgui = player.PlayerGui
 
 -- Create GUI
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "BookODelta"
-screenGui.ResetOnSpawn = false
+screenGui.Name = "BookOMenu"
 screenGui.Parent = pgui
 screenGui.IgnoreGuiInset = true
-
-local function roundify(object, rad)
-    local UICorner=Instance.new("UICorner")
-    UICorner.CornerRadius=UDim.new(0,rad or 12)
-    UICorner.Parent=object
-end
-
-local function gradient(object, colors)
-    local grad=Instance.new("UIGradient")
-    grad.Color=ColorSequence.new(colors)
-    grad.Parent=object
-end
 
 local sidebar = Instance.new("Frame")
 sidebar.Size = UDim2.new(0,96,1,0)
 sidebar.BackgroundColor3=Color3.fromRGB(60,60,110)
-sidebar.BorderSizePixel=0
-sidebar.ZIndex=2
-roundify(sidebar,16)
-gradient(sidebar,{Color3.fromRGB(72,72,115),Color3.fromRGB(40,40,75)})
 sidebar.Parent=screenGui
 
--- Main frame
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0,330,0,430)
 mainFrame.Position = UDim2.new(0.5,-165,0.5,-215)
 mainFrame.BackgroundColor3=Color3.fromRGB(34,34,38)
-mainFrame.BorderSizePixel=0
-mainFrame.Visible=false
-mainFrame.ZIndex=3
-roundify(mainFrame,18)
-gradient(mainFrame,{Color3.fromRGB(46,46,52),Color3.fromRGB(30,30,36)})
+mainFrame.Visible=true
 mainFrame.Parent=screenGui
 
--- Title Bar
 local titleBar=Instance.new("Frame")
 titleBar.Size=UDim2.new(1,0,0,52)
 titleBar.BackgroundColor3=Color3.fromRGB(25,25,50)
-titleBar.BorderSizePixel=0
-titleBar.ZIndex=5
-roundify(titleBar,12)
 titleBar.Parent=mainFrame
 
 local titleLabel=Instance.new("TextLabel")
@@ -59,137 +33,50 @@ titleLabel.BackgroundTransparency=1
 titleLabel.TextColor3=Color3.fromRGB(170,180,255)
 titleLabel.Font=Enum.Font.GothamBold
 titleLabel.TextSize=29
-titleLabel.ZIndex=6
 titleLabel.TextXAlignment=Enum.TextXAlignment.Left
 titleLabel.Parent=titleBar
 
--- DRAG FUNCTIONALITY
-local dragging, dragInput, dragStart, startPos
+-- Simple drag (PC only)
 local UIS = game:GetService("UserInputService")
-
+local dragging, dragInput, dragStart, startPos
 titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
         dragStart = input.Position
         startPos = mainFrame.Position
         dragInput = input
     end
 end)
-
 UIS.InputChanged:Connect(function(input)
     if dragging and input == dragInput then
         local delta = input.Position - dragStart
         mainFrame.Position = UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)
     end
 end)
-
 UIS.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = false
-    end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
 end)
 
--- Menu button to open
-local menuButton=Instance.new("ImageButton")
-menuButton.Size=UDim2.new(0,63,0,63)
-menuButton.Position=UDim2.new(0,17,0,19)
-menuButton.Image="rbxassetid://6035047376"
-menuButton.BackgroundColor3=Color3.fromRGB(80,80,140)
-menuButton.ZIndex=4
-menuButton.AutoButtonColor=true
-roundify(menuButton,12)
-menuButton.Parent=sidebar
-
--- Close and Minimize
-local closeButton=Instance.new("ImageButton")
-closeButton.Size=UDim2.new(0,44,0,44)
-closeButton.Position=UDim2.new(1,-49,0,6)
-closeButton.Image="rbxassetid://4590657391"
-closeButton.BackgroundTransparency=1
-closeButton.ZIndex=9
-closeButton.Parent=titleBar
-
-local minimizeButton=Instance.new("ImageButton")
-minimizeButton.Size=UDim2.new(0,44,0,44)
-minimizeButton.Position=UDim2.new(1,-95,0,6)
-minimizeButton.Image="rbxassetid://1199397638"
-minimizeButton.BackgroundTransparency=1
-minimizeButton.ZIndex=10
-minimizeButton.Parent=titleBar
-
-local unminimizeButton=Instance.new("TextButton")
-unminimizeButton.Size=UDim2.new(0,160,0,54)
-unminimizeButton.Position=UDim2.new(0.5,-80,1,28)
-unminimizeButton.Text="Restore Menu"
-unminimizeButton.BackgroundColor3=Color3.fromRGB(80,80,120)
-unminimizeButton.TextColor3=Color3.fromRGB(240,240,255)
-unminimizeButton.TextScaled=true
-unminimizeButton.Visible=false
-unminimizeButton.ZIndex=12
-roundify(unminimizeButton,13)
-unminimizeButton.Parent=screenGui
-
--- Sidebar category buttons
-local categories={
-    {"Home","rbxassetid://6026568198"},
-    {"ESP","rbxassetid://6034996695"},
-    {"Aim","rbxassetid://6023426915"},
-    {"About","rbxassetid://6023426956"}
-}
-local categoryFrames, categoryButtons={},{}
-local yOff=97
-for i,cat in ipairs(categories)do
-    local btn=Instance.new("ImageButton")
-    btn.Size=UDim2.new(0,64,0,64)
-    btn.Position=UDim2.new(0,15,0,yOff)
-    btn.Image=cat[2]
-    btn.BackgroundColor3=Color3.fromRGB(54,54,90)
-    btn.ZIndex=5
-    btn.Name=cat[1]
-    roundify(btn,32)
-    gradient(btn,{Color3.fromRGB(60+10*i,60+10*i,100),Color3.fromRGB(40,40,70)})
+-- Category buttons
+local categories = {"Home","ESP","Aim","About"}
+local categoryFrames = {}
+for i,cat in pairs(categories) do
+    local btn=Instance.new("TextButton")
+    btn.Size=UDim2.new(0,80,0,48)
+    btn.Position=UDim2.new(0,8,0,60*i)
+    btn.Text=cat
     btn.Parent=sidebar
-    table.insert(categoryButtons,btn)
-    yOff=yOff+72
-
     local frame=Instance.new("Frame")
-    frame.Name=cat[1].."Frame"
+    frame.Name=cat.."Frame"
     frame.Size=UDim2.new(1,-92,1,-70)
     frame.Position=UDim2.new(0,86,0,52)
-    frame.Visible=i==1
+    frame.Visible=(i==1)
     frame.BackgroundTransparency=1
-    frame.ZIndex=4
     frame.Parent=mainFrame
-    table.insert(categoryFrames,frame)
-end
-
--- Open/Close/Minimize logic
-local function openMenu()
-    mainFrame.Visible=true
-    unminimizeButton.Visible=false
-end
-local function closeMenu()
-    mainFrame.Visible=false
-    unminimizeButton.Visible=false
-end
-local function minimizeMenu()
-    mainFrame.Visible=false
-    unminimizeButton.Visible=true
-end
-local function restoreMenu()
-    mainFrame.Visible=true
-    unminimizeButton.Visible=false
-end
-
-menuButton.MouseButton1Click:Connect(openMenu)
-closeButton.MouseButton1Click:Connect(closeMenu)
-minimizeButton.MouseButton1Click:Connect(minimizeMenu)
-unminimizeButton.MouseButton1Click:Connect(restoreMenu)
-
-for i,btn in ipairs(categoryButtons)do
+    categoryFrames[i]=frame
     btn.MouseButton1Click:Connect(function()
-        for k,frame in ipairs(categoryFrames)do frame.Visible=false end
-        categoryFrames[i].Visible=true
+        for k,frame in pairs(categoryFrames) do frame.Visible=false end
+        frame.Visible=true
     end)
 end
 
@@ -197,12 +84,11 @@ end
 local homeText=Instance.new("TextLabel")
 homeText.Size=UDim2.new(1,-24,0,60)
 homeText.Position=UDim2.new(0,12,0,21)
-homeText.Text="Welcome to Book-O!\nChoose a feature on the left."
+homeText.Text="Welcome to Book-O!\nChoose a feature"
 homeText.Font=Enum.Font.GothamSemibold
 homeText.TextSize=24
 homeText.TextColor3=Color3.fromRGB(170,220,255)
 homeText.BackgroundTransparency=1
-homeText.TextWrapped=true
 homeText.Parent=categoryFrames[1]
 
 -- ESP frame
@@ -214,7 +100,6 @@ espToggle.Font=Enum.Font.Gotham
 espToggle.TextScaled=true
 espToggle.BackgroundColor3=Color3.fromRGB(60,80,130)
 espToggle.TextColor3=Color3.fromRGB(255,255,255)
-roundify(espToggle,11)
 espToggle.Parent=categoryFrames[2]
 
 -- Aim frame
@@ -226,7 +111,6 @@ aimMurdererBtn.Font=Enum.Font.GothamSemibold
 aimMurdererBtn.TextScaled=true
 aimMurdererBtn.BackgroundColor3=Color3.fromRGB(255,60,80)
 aimMurdererBtn.TextColor3=Color3.fromRGB(255,255,255)
-roundify(aimMurdererBtn,13)
 aimMurdererBtn.Parent=categoryFrames[3]
 
 local aimSheriffBtn=Instance.new("TextButton")
@@ -237,7 +121,6 @@ aimSheriffBtn.Font=Enum.Font.GothamSemibold
 aimSheriffBtn.TextScaled=true
 aimSheriffBtn.BackgroundColor3=Color3.fromRGB(68,68,210)
 aimSheriffBtn.TextColor3=Color3.fromRGB(255,255,255)
-roundify(aimSheriffBtn,13)
 aimSheriffBtn.Parent=categoryFrames[3]
 
 -- About frame
@@ -254,7 +137,7 @@ aboutText.Parent=categoryFrames[4]
 local aboutDesc=Instance.new("TextLabel")
 aboutDesc.Size=UDim2.new(1,-24,0,52)
 aboutDesc.Position=UDim2.new(0,12,0,62)
-aboutDesc.Text="Mobile-friendly | ESP | Auto Aim\nMinimize, Restore, Drag"
+aboutDesc.Text="Mobile-friendly | ESP | Auto Aim"
 aboutDesc.TextColor3=Color3.fromRGB(190,190,230)
 aboutDesc.Font=Enum.Font.GothamLight
 aboutDesc.TextSize=15
@@ -263,12 +146,6 @@ aboutDesc.TextWrapped=true
 aboutDesc.Parent=categoryFrames[4]
 
 -- ESP logic
-local function Notify(tbl)
-    pcall(function()
-        game.StarterGui:SetCore("SendNotification", tbl)
-    end)
-end
-
 local function findMurderer()
     for _,plr in ipairs(game.Players:GetPlayers())do
         if plr:FindFirstChild("Backpack")and plr.Backpack:FindFirstChild("Knife")then return plr end
@@ -322,54 +199,30 @@ local function applyESP()
     if sheriff then addESPToPlayer(sheriff,Color3.fromRGB(30,30,255))end
 end
 
-local function updateESPRole()
-    applyESP()
-end
-
 game.Players.PlayerAdded:Connect(function(plr)
-    plr.CharacterAdded:Connect(updateESPRole)
+    plr.CharacterAdded:Connect(applyESP)
 end)
 for _,plr in pairs(game.Players:GetPlayers())do
-    plr.CharacterAdded:Connect(updateESPRole)
+    plr.CharacterAdded:Connect(applyESP)
 end
 
 espToggle.MouseButton1Click:Connect(function()
     espEnabled=not espEnabled
-    if espEnabled then
-        Notify({Title="ESP On",Text="Murderer/Sheriff highlighted!",Duration=3})
-    else
-        clearESP()
-        Notify({Title="ESP Off",Text="Highlight removed.",Duration=2})
-    end
     applyESP()
 end)
 
 -- Auto Aim
 local function aimAtPlayer(player)
-    if not player or not player.Character or not player.Character:FindFirstChild("Head")then
-        Notify({Title="Auto Aim",Text="Target not found!",Duration=2})
-        return
-    end
+    if not player or not player.Character or not player.Character:FindFirstChild("Head")then return end
     local cam=workspace.CurrentCamera
-    local char=player.Character
-    local head=char:FindFirstChild("Head")
+    local head=player.Character:FindFirstChild("Head")
     if not cam or not head then return end
-
-    -- Camera focus
-    local targetPos=head.Position
-    local tweenService=game:GetService("TweenService")
-    local info=TweenInfo.new(0.22,Enum.EasingStyle.Sine,Enum.EasingDirection.Out)
-    local prop={CFrame=CFrame.new(cam.CFrame.Position,targetPos)}
-    local tween=tweenService:Create(cam,info,prop)
-    tween:Play()
+    cam.CameraSubject=head
+    cam.CFrame=CFrame.new(cam.CFrame.Position,head.Position)
 end
 
 aimMurdererBtn.MouseButton1Click:Connect(function() aimAtPlayer(findMurderer()) end)
 aimSheriffBtn.MouseButton1Click:Connect(function() aimAtPlayer(findSheriff()) end)
 
--- Open menu automatically
-wait(.7)
+-- Ensure GUI is shown on load
 mainFrame.Visible=true
-
--- Drag enabled for TitleBar (mobile and pc)
--- Book-O for Delta by petsimulatorx558-glitch
