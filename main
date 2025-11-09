@@ -3,6 +3,7 @@
 
 local player = game:GetService("Players").LocalPlayer
 local pgui = player:WaitForChild("PlayerGui")
+local UIS = game:GetService("UserInputService")
 
 -- Remove previous menu if any
 local oldMenu = pgui:FindFirstChild("BookOMenu")
@@ -16,54 +17,57 @@ screenGui.IgnoreGuiInset = true
 screenGui.ResetOnSpawn = false
 
 local sidebar = Instance.new("Frame")
-sidebar.Size = UDim2.new(0, 96, 1, 0)
+sidebar.Size = UDim2.new(0, 110, 1, 0) -- wider for thumb space
 sidebar.BackgroundColor3 = Color3.fromRGB(48, 48, 84)
 sidebar.BorderSizePixel = 0
 sidebar.Parent = screenGui
 
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 330, 0, 430)
-mainFrame.Position = UDim2.new(0.5, -165, 0.5, -215)
+mainFrame.Size = UDim2.new(0, 350, 0, 470)
+mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0) -- Perfectly centered
+mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 mainFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 32)
 mainFrame.BorderSizePixel = 0
-mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 mainFrame.Visible = true
 mainFrame.Parent = screenGui
 mainFrame.ClipsDescendants = true
 
 -- Title Bar
 local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 52)
+titleBar.Size = UDim2.new(1, 0, 0, 62) -- taller bar for mobile
 titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 65)
 titleBar.BorderSizePixel = 0
 titleBar.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -52, 1, 0)
-titleLabel.Position = UDim2.new(0, 16, 0, 0)
+titleLabel.Size = UDim2.new(1, -60, 1, 0)
+titleLabel.Position = UDim2.new(0, 20, 0, 0)
 titleLabel.Text = "📖 Book-O Menu"
 titleLabel.BackgroundTransparency = 1
 titleLabel.TextColor3 = Color3.fromRGB(200, 215, 250)
 titleLabel.Font = Enum.Font.GothamBold
-titleLabel.TextSize = 30
+titleLabel.TextSize = 32
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.TextWrapped = true
+titleLabel.TextScaled = true
 titleLabel.Parent = titleBar
 
 local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 42, 1, 0)
-closeBtn.Position = UDim2.new(1, -42, 0, 0)
+closeBtn.Size = UDim2.new(0, 54, 1, 0)
+closeBtn.Position = UDim2.new(1, -54, 0, 0)
 closeBtn.Text = "×"
 closeBtn.BackgroundTransparency = 1
 closeBtn.TextColor3 = Color3.fromRGB(220, 90, 90)
 closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 28
+closeBtn.TextSize = 32
+closeBtn.TextScaled = true
 closeBtn.Parent = titleBar
 closeBtn.MouseButton1Click:Connect(function()
     screenGui:Destroy()
 end)
+closeBtn.AutoButtonColor = true -- enable touch highlight
 
 -- Mobile+PC Drag
-local UIS = game:GetService("UserInputService")
 local dragging, dragInput, dragStart, startPos
 titleBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -83,105 +87,124 @@ local categories = {"Home","ESP","Aim","About"}
 local icons = {"🏠","👁️","🎯","ℹ️"}
 local categoryFrames = {}
 
-for i,cat in pairs(categories) do
+for i,cat in ipairs(categories) do
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 80, 0, 48)
-    btn.Position = UDim2.new(0, 8, 0, 60*i)
+    btn.Size = UDim2.new(0, 94, 0, 56) -- bigger for thumb
+    btn.Position = UDim2.new(0, 8, 0, 65*i)
     btn.Text = icons[i].." "..cat
     btn.BackgroundColor3 = (i==1) and Color3.fromRGB(85,116,225) or Color3.fromRGB(60,60,95)
     btn.TextColor3 = Color3.fromRGB(255,255,255)
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 19
+    btn.TextSize = 22
+    btn.TextScaled = true
     btn.BorderSizePixel = 0
-    btn.AutoButtonColor = false
+    btn.AutoButtonColor = true
     btn.Parent = sidebar
 
     local frame = Instance.new("Frame")
     frame.Name = cat.."Frame"
-    frame.Size = UDim2.new(1,-92,1,-70)
-    frame.Position = UDim2.new(0,86,0,52)
+    frame.Size = UDim2.new(1,-110,1,-94)
+    frame.Position = UDim2.new(0,110,0,62)
     frame.Visible = (i == 1)
     frame.BackgroundTransparency = 1
     frame.Parent = mainFrame
     categoryFrames[i] = frame
 
     btn.MouseButton1Click:Connect(function()
-        for k,frame in ipairs(categoryFrames) do 
+        for k,frame in ipairs(categoryFrames) do
             frame.Visible = false
             sidebar:GetChildren()[k].BackgroundColor3 = Color3.fromRGB(60,60,95)
         end
         frame.Visible = true
         btn.BackgroundColor3 = Color3.fromRGB(85,116,225)
     end)
+
+    -- Mobile Touch Feedback
+    btn.TouchTap:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(75,146,225)
+        wait(0.12)
+        btn.BackgroundColor3 = (i==1 and frame.Visible) and Color3.fromRGB(85,116,225) or Color3.fromRGB(60,60,95)
+    end)
 end
 
 -- Home frame
 local homeText = Instance.new("TextLabel")
-homeText.Size = UDim2.new(1, -24, 0, 80)
-homeText.Position = UDim2.new(0, 12, 0, 30)
+homeText.Size = UDim2.new(1, -28, 0, 100)
+homeText.Position = UDim2.new(0, 14, 0, 44)
 homeText.Text = "🎉 Welcome to Book-O!\nSelect a feature on the left."
 homeText.Font = Enum.Font.GothamSemibold
-homeText.TextSize = 23
+homeText.TextSize = 24
 homeText.TextColor3 = Color3.fromRGB(180,240,255)
 homeText.BackgroundTransparency = 1
 homeText.TextWrapped = true
+homeText.TextScaled = true
 homeText.Parent = categoryFrames[1]
 
 -- ESP frame
 local espToggle = Instance.new("TextButton")
-espToggle.Size = UDim2.new(0, 210, 0, 54)
-espToggle.Position = UDim2.new(0, 36, 0, 48)
+espToggle.Size = UDim2.new(0, 250, 0, 64) -- larger tap area
+espToggle.Position = UDim2.new(0, 46, 0, 58)
 espToggle.Text = "👁️ Toggle ESP\n(Murderer/Sheriff)"
 espToggle.Font = Enum.Font.Gotham
-espToggle.TextSize = 20
+espToggle.TextSize = 22
+espToggle.TextWrapped = true
+espToggle.TextScaled = true
 espToggle.BackgroundColor3 = Color3.fromRGB(60, 140, 200)
 espToggle.TextColor3 = Color3.fromRGB(245,255,255)
 espToggle.BorderSizePixel = 0
+espToggle.AutoButtonColor = true
 espToggle.Parent = categoryFrames[2]
 
 -- Aim frame
 local aimMurdererBtn = Instance.new("TextButton")
-aimMurdererBtn.Size = UDim2.new(0,181,0,48)
-aimMurdererBtn.Position = UDim2.new(0,46,0,41)
+aimMurdererBtn.Size = UDim2.new(0,210,0,56)
+aimMurdererBtn.Position = UDim2.new(0,60,0,56)
 aimMurdererBtn.Text = "🎯 Auto Aim: Murderer"
 aimMurdererBtn.Font = Enum.Font.GothamSemibold
+aimMurdererBtn.TextWrapped = true
 aimMurdererBtn.TextScaled = true
 aimMurdererBtn.BackgroundColor3 = Color3.fromRGB(220,60,80)
 aimMurdererBtn.TextColor3 = Color3.fromRGB(255,255,255)
 aimMurdererBtn.BorderSizePixel = 0
+aimMurdererBtn.AutoButtonColor = true
 aimMurdererBtn.Parent = categoryFrames[3]
 
 local aimSheriffBtn = Instance.new("TextButton")
-aimSheriffBtn.Size = UDim2.new(0,181,0,48)
-aimSheriffBtn.Position = UDim2.new(0,46,0,100)
+aimSheriffBtn.Size = UDim2.new(0,210,0,56)
+aimSheriffBtn.Position = UDim2.new(0,60,0,128)
 aimSheriffBtn.Text = "🎯 Auto Aim: Sheriff"
 aimSheriffBtn.Font = Enum.Font.GothamSemibold
+aimSheriffBtn.TextWrapped = true
 aimSheriffBtn.TextScaled = true
 aimSheriffBtn.BackgroundColor3 = Color3.fromRGB(68,140,225)
 aimSheriffBtn.TextColor3 = Color3.fromRGB(255,255,255)
 aimSheriffBtn.BorderSizePixel = 0
+aimSheriffBtn.AutoButtonColor = true
 aimSheriffBtn.Parent = categoryFrames[3]
 
 -- About frame
 local aboutText = Instance.new("TextLabel")
-aboutText.Size = UDim2.new(1, -24, 0, 34)
-aboutText.Position = UDim2.new(0, 12, 0, 18)
+aboutText.Size = UDim2.new(1, -28, 0, 42)
+aboutText.Position = UDim2.new(0, 14, 0, 26)
 aboutText.Text = "Book-O Menu by petsimulatorx558-glitch"
 aboutText.TextColor3 = Color3.fromRGB(210,210,255)
 aboutText.Font = Enum.Font.Gotham
-aboutText.TextSize = 18
+aboutText.TextSize = 20
 aboutText.BackgroundTransparency = 1
+aboutText.TextWrapped = true
+aboutText.TextScaled = true
 aboutText.Parent = categoryFrames[4]
 
 local aboutDesc = Instance.new("TextLabel")
-aboutDesc.Size = UDim2.new(1, -24, 0, 49)
-aboutDesc.Position = UDim2.new(0, 12, 0, 52)
+aboutDesc.Size = UDim2.new(1, -28, 0, 59)
+aboutDesc.Position = UDim2.new(0, 14, 0, 72)
 aboutDesc.Text = "Mobile friendly | ESP | Auto Aim | Executor safe"
 aboutDesc.TextColor3 = Color3.fromRGB(180,190,230)
 aboutDesc.Font = Enum.Font.GothamLight
-aboutDesc.TextSize = 16
+aboutDesc.TextSize = 18
 aboutDesc.BackgroundTransparency = 1
 aboutDesc.TextWrapped = true
+aboutDesc.TextScaled = true
 aboutDesc.Parent = categoryFrames[4]
 
 -- ESP logic
@@ -250,6 +273,11 @@ espToggle.MouseButton1Click:Connect(function()
     espToggle.BackgroundColor3 = espEnabled and Color3.fromRGB(50,180,140) or Color3.fromRGB(60,140,200)
     applyESP()
 end)
+espToggle.TouchTap:Connect(function()
+    espEnabled = not espEnabled
+    espToggle.BackgroundColor3 = espEnabled and Color3.fromRGB(50,180,140) or Color3.fromRGB(60,140,200)
+    applyESP()
+end)
 
 -- Auto Aim
 local function aimAtPlayer(player)
@@ -260,6 +288,8 @@ local function aimAtPlayer(player)
     cam.CFrame = CFrame.new(cam.CFrame.Position, head.Position)
 end
 aimMurdererBtn.MouseButton1Click:Connect(function() aimAtPlayer(findMurderer()) end)
+aimMurdererBtn.TouchTap:Connect(function() aimAtPlayer(findMurderer()) end)
 aimSheriffBtn.MouseButton1Click:Connect(function() aimAtPlayer(findSheriff()) end)
+aimSheriffBtn.TouchTap:Connect(function() aimAtPlayer(findSheriff()) end)
 
 mainFrame.Visible = true
