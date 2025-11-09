@@ -1,295 +1,131 @@
--- Book-O Menu Delta Executor Edition
--- Clean, mobile-friendly, and robust!
+-- Load the script
+loadstring(game:HttpGet("https://raw.githubusercontent.com/s-0-a-b/nexus/main/loadstring"))()
 
-local player = game:GetService("Players").LocalPlayer
-local pgui = player:WaitForChild("PlayerGui")
-local UIS = game:GetService("UserInputService")
+-- Function to enable ESP
+local function enableESP()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local esp = Instance.new("BoxHandleAdornment")
+            esp.Name = "ESP"
+            esp.Adornee = player.Character.HumanoidRootPart
+            esp.AlwaysOnTop = true
+            esp.ZIndex = 0
+            esp.Size = Vector3.new(4, 4, 4)
+            esp.Color3 = Color3.new(1, 0, 0) -- Red color for murderer
+            esp.Parent = player.Character.HumanoidRootPart
+        end
+    end
+end
 
--- Remove previous menu if any
-local oldMenu = pgui:FindFirstChild("BookOMenu")
-if oldMenu then oldMenu:Destroy() end
+-- Function to disable ESP
+local function disableESP()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Character and player.Character:FindFirstChild("ESP") then
+            player.Character.ESP:Destroy()
+        end
+    end
+end
 
--- Create GUI
+-- Function to enable aimbot
+local function enableAimbot()
+    local player = game.Players.LocalPlayer
+    local mouse = player:GetMouse()
+    local camera = workspace.CurrentCamera
+
+    mouse.Button1Down:Connect(function()
+        local target = nil
+        local shortestDistance = math.huge
+
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local distance = (camera.CFrame.p - player.Character.HumanoidRootPart.Position).magnitude
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    target = player.Character.HumanoidRootPart
+                end
+            end
+        end
+
+        if target then
+            mouse.Hit = target.Position
+        end
+    end)
+end
+
+-- Function to enable auto-farm
+local function enableAutoFarm()
+    while true do
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local distance = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).magnitude
+                if distance < 20 then
+                    game.Players.LocalPlayer.Character.Humanoid:MoveTo(player.Character.HumanoidRootPart.Position)
+                end
+            end
+        end
+        wait(1)
+    end
+end
+
+-- Create a simple GUI for toggling features
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "BookOMenu"
-screenGui.Parent = pgui
-screenGui.IgnoreGuiInset = true
-screenGui.ResetOnSpawn = false
-
-local sidebar = Instance.new("Frame")
-sidebar.Size = UDim2.new(0, 110, 1, 0) -- wider for thumb space
-sidebar.BackgroundColor3 = Color3.fromRGB(48, 48, 84)
-sidebar.BorderSizePixel = 0
-sidebar.Parent = screenGui
+screenGui.Parent = game:GetService("CoreGui")
 
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 350, 0, 470)
-mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0) -- Perfectly centered
-mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-mainFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 32)
-mainFrame.BorderSizePixel = 0
-mainFrame.Visible = true
+mainFrame.Size = UDim2.new(0, 200, 0, 150)
+mainFrame.Position = UDim2.new(0.5, -100, 0.5, -75)
+mainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
 mainFrame.Parent = screenGui
-mainFrame.ClipsDescendants = true
 
--- Title Bar
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 62) -- taller bar for mobile
-titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 65)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = mainFrame
+local espButton = Instance.new("TextButton")
+espButton.Size = UDim2.new(0, 180, 0, 30)
+espButton.Position = UDim2.new(0.5, -90, 0, 10)
+espButton.Text = "Toggle ESP"
+espButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+espButton.TextColor3 = Color3.new(1, 1, 1)
+espButton.Parent = mainFrame
 
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -60, 1, 0)
-titleLabel.Position = UDim2.new(0, 20, 0, 0)
-titleLabel.Text = "📖 Book-O Menu"
-titleLabel.BackgroundTransparency = 1
-titleLabel.TextColor3 = Color3.fromRGB(200, 215, 250)
-titleLabel.Font = Enum.Font.GothamBold
-titleLabel.TextSize = 32
-titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-titleLabel.TextWrapped = true
-titleLabel.TextScaled = true
-titleLabel.Parent = titleBar
+local aimbotButton = Instance.new("TextButton")
+aimbotButton.Size = UDim2.new(0, 180, 0, 30)
+aimbotButton.Position = UDim2.new(0.5, -90, 0, 50)
+aimbotButton.Text = "Toggle Aimbot"
+aimbotButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+aimbotButton.TextColor3 = Color3.new(1, 1, 1)
+aimbotButton.Parent = mainFrame
 
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 54, 1, 0)
-closeBtn.Position = UDim2.new(1, -54, 0, 0)
-closeBtn.Text = "×"
-closeBtn.BackgroundTransparency = 1
-closeBtn.TextColor3 = Color3.fromRGB(220, 90, 90)
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 32
-closeBtn.TextScaled = true
-closeBtn.Parent = titleBar
-closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-closeBtn.AutoButtonColor = true -- enable touch highlight
+local autoFarmButton = Instance.new("TextButton")
+autoFarmButton.Size = UDim2.new(0, 180, 0, 30)
+autoFarmButton.Position = UDim2.new(0.5, -90, 0, 90)
+autoFarmButton.Text = "Toggle Auto Farm"
+autoFarmButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+autoFarmButton.TextColor3 = Color3.new(1, 1, 1)
+autoFarmButton.Parent = mainFrame
 
--- Mobile+PC Drag
-local dragging, dragInput, dragStart, startPos
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging, dragInput, dragStart, startPos = true, input, input.Position, mainFrame.Position
-        input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
-    end
-end)
-UIS.InputChanged:Connect(function(input)
-    if dragging and input == dragInput then
-        local delta = input.Position - dragStart
-        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+-- Connect button click events
+espButton.MouseButton1Click:Connect(function()
+    if espButton.Text == "Toggle ESP" then
+        espButton.Text = "ESP Enabled"
+        enableESP()
+    else
+        espButton.Text = "Toggle ESP"
+        disableESP()
     end
 end)
 
--- Sidebar Categories
-local categories = {"Home","ESP","Aim","About"}
-local icons = {"🏠","👁️","🎯","ℹ️"}
-local categoryFrames = {}
-
-for i,cat in ipairs(categories) do
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 94, 0, 56) -- bigger for thumb
-    btn.Position = UDim2.new(0, 8, 0, 65*i)
-    btn.Text = icons[i].." "..cat
-    btn.BackgroundColor3 = (i==1) and Color3.fromRGB(85,116,225) or Color3.fromRGB(60,60,95)
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 22
-    btn.TextScaled = true
-    btn.BorderSizePixel = 0
-    btn.AutoButtonColor = true
-    btn.Parent = sidebar
-
-    local frame = Instance.new("Frame")
-    frame.Name = cat.."Frame"
-    frame.Size = UDim2.new(1,-110,1,-94)
-    frame.Position = UDim2.new(0,110,0,62)
-    frame.Visible = (i == 1)
-    frame.BackgroundTransparency = 1
-    frame.Parent = mainFrame
-    categoryFrames[i] = frame
-
-    btn.MouseButton1Click:Connect(function()
-        for k,frame in ipairs(categoryFrames) do
-            frame.Visible = false
-            sidebar:GetChildren()[k].BackgroundColor3 = Color3.fromRGB(60,60,95)
-        end
-        frame.Visible = true
-        btn.BackgroundColor3 = Color3.fromRGB(85,116,225)
-    end)
-
-    -- Mobile Touch Feedback
-    btn.TouchTap:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(75,146,225)
-        wait(0.12)
-        btn.BackgroundColor3 = (i==1 and frame.Visible) and Color3.fromRGB(85,116,225) or Color3.fromRGB(60,60,95)
-    end)
-end
-
--- Home frame
-local homeText = Instance.new("TextLabel")
-homeText.Size = UDim2.new(1, -28, 0, 100)
-homeText.Position = UDim2.new(0, 14, 0, 44)
-homeText.Text = "🎉 Welcome to Book-O!\nSelect a feature on the left."
-homeText.Font = Enum.Font.GothamSemibold
-homeText.TextSize = 24
-homeText.TextColor3 = Color3.fromRGB(180,240,255)
-homeText.BackgroundTransparency = 1
-homeText.TextWrapped = true
-homeText.TextScaled = true
-homeText.Parent = categoryFrames[1]
-
--- ESP frame
-local espToggle = Instance.new("TextButton")
-espToggle.Size = UDim2.new(0, 250, 0, 64) -- larger tap area
-espToggle.Position = UDim2.new(0, 46, 0, 58)
-espToggle.Text = "👁️ Toggle ESP\n(Murderer/Sheriff)"
-espToggle.Font = Enum.Font.Gotham
-espToggle.TextSize = 22
-espToggle.TextWrapped = true
-espToggle.TextScaled = true
-espToggle.BackgroundColor3 = Color3.fromRGB(60, 140, 200)
-espToggle.TextColor3 = Color3.fromRGB(245,255,255)
-espToggle.BorderSizePixel = 0
-espToggle.AutoButtonColor = true
-espToggle.Parent = categoryFrames[2]
-
--- Aim frame
-local aimMurdererBtn = Instance.new("TextButton")
-aimMurdererBtn.Size = UDim2.new(0,210,0,56)
-aimMurdererBtn.Position = UDim2.new(0,60,0,56)
-aimMurdererBtn.Text = "🎯 Auto Aim: Murderer"
-aimMurdererBtn.Font = Enum.Font.GothamSemibold
-aimMurdererBtn.TextWrapped = true
-aimMurdererBtn.TextScaled = true
-aimMurdererBtn.BackgroundColor3 = Color3.fromRGB(220,60,80)
-aimMurdererBtn.TextColor3 = Color3.fromRGB(255,255,255)
-aimMurdererBtn.BorderSizePixel = 0
-aimMurdererBtn.AutoButtonColor = true
-aimMurdererBtn.Parent = categoryFrames[3]
-
-local aimSheriffBtn = Instance.new("TextButton")
-aimSheriffBtn.Size = UDim2.new(0,210,0,56)
-aimSheriffBtn.Position = UDim2.new(0,60,0,128)
-aimSheriffBtn.Text = "🎯 Auto Aim: Sheriff"
-aimSheriffBtn.Font = Enum.Font.GothamSemibold
-aimSheriffBtn.TextWrapped = true
-aimSheriffBtn.TextScaled = true
-aimSheriffBtn.BackgroundColor3 = Color3.fromRGB(68,140,225)
-aimSheriffBtn.TextColor3 = Color3.fromRGB(255,255,255)
-aimSheriffBtn.BorderSizePixel = 0
-aimSheriffBtn.AutoButtonColor = true
-aimSheriffBtn.Parent = categoryFrames[3]
-
--- About frame
-local aboutText = Instance.new("TextLabel")
-aboutText.Size = UDim2.new(1, -28, 0, 42)
-aboutText.Position = UDim2.new(0, 14, 0, 26)
-aboutText.Text = "Book-O Menu by petsimulatorx558-glitch"
-aboutText.TextColor3 = Color3.fromRGB(210,210,255)
-aboutText.Font = Enum.Font.Gotham
-aboutText.TextSize = 20
-aboutText.BackgroundTransparency = 1
-aboutText.TextWrapped = true
-aboutText.TextScaled = true
-aboutText.Parent = categoryFrames[4]
-
-local aboutDesc = Instance.new("TextLabel")
-aboutDesc.Size = UDim2.new(1, -28, 0, 59)
-aboutDesc.Position = UDim2.new(0, 14, 0, 72)
-aboutDesc.Text = "Mobile friendly | ESP | Auto Aim | Executor safe"
-aboutDesc.TextColor3 = Color3.fromRGB(180,190,230)
-aboutDesc.Font = Enum.Font.GothamLight
-aboutDesc.TextSize = 18
-aboutDesc.BackgroundTransparency = 1
-aboutDesc.TextWrapped = true
-aboutDesc.TextScaled = true
-aboutDesc.Parent = categoryFrames[4]
-
--- ESP logic
-local function findMurderer()
-    for _,plr in ipairs(game.Players:GetPlayers()) do
-        if plr:FindFirstChild("Backpack") and plr.Backpack:FindFirstChild("Knife") then return plr end
-        if plr.Character and plr.Character:FindFirstChild("Knife") then return plr end
+aimbotButton.MouseButton1Click:Connect(function()
+    if aimbotButton.Text == "Toggle Aimbot" then
+        aimbotButton.Text = "Aimbot Enabled"
+        enableAimbot()
+    else
+        aimbotButton.Text = "Toggle Aimbot"
     end
-end
-
-local function findSheriff()
-    for _,plr in ipairs(game.Players:GetPlayers()) do
-        if plr:FindFirstChild("Backpack") and plr.Backpack:FindFirstChild("Gun") then return plr end
-        if plr.Character and plr.Character:FindFirstChild("Gun") then return plr end
-    end
-end
-
-local function clearESP()
-    for _,plr in pairs(game.Players:GetPlayers()) do
-        if plr.Character then
-            for _,obj in ipairs(plr.Character:GetDescendants()) do
-                if obj:IsA("BoxHandleAdornment") then obj:Destroy() end
-            end
-        end
-    end
-end
-
-local function addESPToPlayer(player, color)
-    if not player or not player.Character then return end
-    for _,part in ipairs(player.Character:GetDescendants()) do
-        if part:IsA("BasePart") then
-            for _,adorn in ipairs(part:GetChildren()) do
-                if adorn:IsA("BoxHandleAdornment") then adorn:Destroy() end
-            end
-            local espBox = Instance.new("BoxHandleAdornment")
-            espBox.Parent = part
-            espBox.Adornee = part
-            espBox.AlwaysOnTop = true
-            espBox.Transparency = 0.6
-            espBox.Size = part.Size
-            espBox.Color3 = color
-            espBox.ZIndex = 0
-        end
-    end
-end
-
-local espEnabled = false
-local function applyESP()
-    clearESP()
-    if not espEnabled then return end
-    local murderer = findMurderer()
-    local sheriff = findSheriff()
-    if murderer then addESPToPlayer(murderer, Color3.fromRGB(255, 60, 120)) end
-    if sheriff then addESPToPlayer(sheriff, Color3.fromRGB(50, 130, 255)) end
-end
-
-game.Players.PlayerAdded:Connect(function(plr)
-    plr.CharacterAdded:Connect(applyESP)
-end)
-for _,plr in pairs(game.Players:GetPlayers()) do
-    plr.CharacterAdded:Connect(applyESP)
-end
-
-espToggle.MouseButton1Click:Connect(function()
-    espEnabled = not espEnabled
-    espToggle.BackgroundColor3 = espEnabled and Color3.fromRGB(50,180,140) or Color3.fromRGB(60,140,200)
-    applyESP()
-end)
-espToggle.TouchTap:Connect(function()
-    espEnabled = not espEnabled
-    espToggle.BackgroundColor3 = espEnabled and Color3.fromRGB(50,180,140) or Color3.fromRGB(60,140,200)
-    applyESP()
 end)
 
--- Auto Aim
-local function aimAtPlayer(player)
-    if not player or not player.Character or not player.Character:FindFirstChild("Head") then return end
-    local cam = workspace.CurrentCamera
-    local head = player.Character:FindFirstChild("Head")
-    cam.CameraSubject = head
-    cam.CFrame = CFrame.new(cam.CFrame.Position, head.Position)
-end
-aimMurdererBtn.MouseButton1Click:Connect(function() aimAtPlayer(findMurderer()) end)
-aimMurdererBtn.TouchTap:Connect(function() aimAtPlayer(findMurderer()) end)
-aimSheriffBtn.MouseButton1Click:Connect(function() aimAtPlayer(findSheriff()) end)
-aimSheriffBtn.TouchTap:Connect(function() aimAtPlayer(findSheriff()) end)
-
-mainFrame.Visible = true
+autoFarmButton.MouseButton1Click:Connect(function()
+    if autoFarmButton.Text == "Toggle Auto Farm" then
+        autoFarmButton.Text = "Auto Farm Enabled"
+        enableAutoFarm()
+    else
+        autoFarmButton.Text = "Toggle Auto Farm"
+    end
+end)
