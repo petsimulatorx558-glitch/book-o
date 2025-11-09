@@ -1,205 +1,185 @@
--- Book-O Menu Super Upgrade for Roblox (LocalScript)
-
--- Utility
+-- Book-O Menu for Delta Executor (Mobile-Friendly, with Drag)
+repeat wait() until game and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer:FindFirstChild("PlayerGui")
 local player = game.Players.LocalPlayer
+local pgui = player.PlayerGui
+
+-- Create GUI
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "BookOMenu"
-screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.Name = "BookODelta"
 screenGui.ResetOnSpawn = false
+screenGui.Parent = pgui
+screenGui.IgnoreGuiInset = true
 
--- Theme/Visual helpers
 local function roundify(object, rad)
-    local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0, rad or 8)
-    UICorner.Parent = object
+    local UICorner=Instance.new("UICorner")
+    UICorner.CornerRadius=UDim.new(0,rad or 12)
+    UICorner.Parent=object
 end
 
--- Gradient helper
 local function gradient(object, colors)
-    local grad = Instance.new("UIGradient")
-    grad.Color = ColorSequence.new(colors)
-    grad.Parent = object
+    local grad=Instance.new("UIGradient")
+    grad.Color=ColorSequence.new(colors)
+    grad.Parent=object
 end
 
--- Drop shadow helper
-local function dropShadow(object)
-    local shadow = Instance.new("ImageLabel")
-    shadow.Name = "Shadow"
-    shadow.BackgroundTransparency = 1
-    shadow.Image = "rbxassetid://1316045217"
-    shadow.ImageTransparency = 0.6
-    shadow.ScaleType = Enum.ScaleType.Slice
-    shadow.SliceCenter = Rect.new(10,10,118,118)
-    shadow.Size = UDim2.new(1,20,1,20)
-    shadow.Position = UDim2.new(0,-10,0,-10)
-    shadow.ZIndex = object.ZIndex - 1
-    shadow.Parent = object
-end
-
--- Menu sidebar
 local sidebar = Instance.new("Frame")
-sidebar.Size = UDim2.new(0, 80, 1, 0)
-sidebar.Position = UDim2.new(0, 0, 0, 0)
-sidebar.BackgroundColor3 = Color3.fromRGB(40, 40, 80)
-sidebar.BorderSizePixel = 0
-sidebar.ZIndex = 2
-roundify(sidebar, 12)
-gradient(sidebar, {
-    Color3.fromRGB(50, 50, 100),
-    Color3.fromRGB(30, 30, 50)
-})
-sidebar.Parent = screenGui
+sidebar.Size = UDim2.new(0,96,1,0)
+sidebar.BackgroundColor3=Color3.fromRGB(60,60,110)
+sidebar.BorderSizePixel=0
+sidebar.ZIndex=2
+roundify(sidebar,16)
+gradient(sidebar,{Color3.fromRGB(72,72,115),Color3.fromRGB(40,40,75)})
+sidebar.Parent=screenGui
 
 -- Main frame
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 400, 0, 480)
-mainFrame.Position = UDim2.new(0.5, -200, 0.5, -240)
-mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-mainFrame.Visible = false
-mainFrame.ZIndex = 3
-mainFrame.BorderSizePixel = 0
-roundify(mainFrame, 14)
-gradient(mainFrame, {
-    Color3.fromRGB(40, 40, 40),
-    Color3.fromRGB(20, 20, 30)
-})
-dropShadow(mainFrame)
-mainFrame.Parent = screenGui
+mainFrame.Size = UDim2.new(0,330,0,430)
+mainFrame.Position = UDim2.new(0.5,-165,0.5,-215)
+mainFrame.BackgroundColor3=Color3.fromRGB(34,34,38)
+mainFrame.BorderSizePixel=0
+mainFrame.Visible=false
+mainFrame.ZIndex=3
+roundify(mainFrame,18)
+gradient(mainFrame,{Color3.fromRGB(46,46,52),Color3.fromRGB(30,30,36)})
+mainFrame.Parent=screenGui
 
--- TitleBar
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 50)
-titleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 50)
-titleBar.BorderSizePixel = 0
-titleBar.ZIndex = 5
-roundify(titleBar, 10)
-titleBar.Parent = mainFrame
+-- Title Bar
+local titleBar=Instance.new("Frame")
+titleBar.Size=UDim2.new(1,0,0,52)
+titleBar.BackgroundColor3=Color3.fromRGB(25,25,50)
+titleBar.BorderSizePixel=0
+titleBar.ZIndex=5
+roundify(titleBar,12)
+titleBar.Parent=mainFrame
 
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -60, 1, 0)
-titleLabel.Position = UDim2.new(0, 20, 0, 0)
-titleLabel.Text = "Book-O Menu"
-titleLabel.BackgroundTransparency = 1
-titleLabel.TextColor3 = Color3.fromRGB(180, 180, 255)
-titleLabel.Font = Enum.Font.GothamBold
-titleLabel.TextSize = 30
-titleLabel.ZIndex = 6
-titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-titleLabel.Parent = titleBar
+local titleLabel=Instance.new("TextLabel")
+titleLabel.Size=UDim2.new(1,-50,1,0)
+titleLabel.Position=UDim2.new(0,14,0,0)
+titleLabel.Text="Book-O Menu"
+titleLabel.BackgroundTransparency=1
+titleLabel.TextColor3=Color3.fromRGB(170,180,255)
+titleLabel.Font=Enum.Font.GothamBold
+titleLabel.TextSize=29
+titleLabel.ZIndex=6
+titleLabel.TextXAlignment=Enum.TextXAlignment.Left
+titleLabel.Parent=titleBar
 
--- Menu button
-local menuButton = Instance.new("ImageButton")
-menuButton.Size = UDim2.new(0, 50, 0, 50)
-menuButton.Position = UDim2.new(0, 14, 0, 20)
-menuButton.Image = "rbxassetid://6035047376" -- book icon
-menuButton.BackgroundTransparency = 0
-menuButton.BackgroundColor3 = Color3.fromRGB(80, 80, 140)
-menuButton.ZIndex = 4
-roundify(menuButton, 8)
-dropShadow(menuButton)
-menuButton.Parent = sidebar
-
--- Close/minimize
-local closeButton = Instance.new("ImageButton")
-closeButton.Size = UDim2.new(0, 40, 0, 40)
-closeButton.Position = UDim2.new(1, -45, 0, 5)
-closeButton.Image = "rbxassetid://4590657391" -- X icon
-closeButton.BackgroundTransparency = 1
-closeButton.ZIndex = 10
-closeButton.Parent = titleBar
-
-local minimizeButton = Instance.new("ImageButton")
-minimizeButton.Size = UDim2.new(0, 40, 0, 40)
-minimizeButton.Position = UDim2.new(1, -90, 0, 5)
-minimizeButton.Image = "rbxassetid://1199397638" -- minimize icon
-minimizeButton.BackgroundTransparency = 1
-minimizeButton.ZIndex = 10
-minimizeButton.Parent = titleBar
-
-local unminimizeButton = Instance.new("TextButton")
-unminimizeButton.Size = UDim2.new(0, 140, 0, 50)
-unminimizeButton.Position = UDim2.new(0.5, -70, 1, 20)
-unminimizeButton.Text = "Restore Menu"
-unminimizeButton.BackgroundColor3 = Color3.fromRGB(75,75,95)
-unminimizeButton.TextColor3 = Color3.fromRGB(230,230,255)
-unminimizeButton.TextScaled = true
-unminimizeButton.Visible = false
-unminimizeButton.ZIndex = 10
-roundify(unminimizeButton, 12)
-unminimizeButton.Parent = screenGui
-
--- Category buttons on sidebar
-local categories = {
-    {"Home", "rbxassetid://6026568198"},
-    {"ESP", "rbxassetid://6034996695"},
-    {"Aim", "rbxassetid://6023426915"},
-    {"About", "rbxassetid://6023426956"},
-}
-local categoryFrames, categoryButtons = {}, {}
-
-local yOff = 80
-for i, cat in ipairs(categories) do
-    local btn = Instance.new("ImageButton")
-    btn.Size = UDim2.new(0,60,0,60)
-    btn.Position = UDim2.new(0, 10, 0, yOff)
-    btn.Image = cat[2]
-    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 100)
-    btn.ZIndex = 5
-    btn.Name = cat[1]
-    roundify(btn, 30)
-    gradient(btn, {
-        Color3.fromRGB(55 + 20*i,55 + 20*i,90),
-        Color3.fromRGB(40, 40, 70)
-    })
-    btn.Parent = sidebar
-    table.insert(categoryButtons, btn)
-    yOff = yOff + 70
-
-    local frame = Instance.new("Frame")
-    frame.Name = cat[1].."Frame"
-    frame.Size = UDim2.new(1, -90, 1, -65)
-    frame.Position = UDim2.new(0, 80, 0, 55)
-    frame.Visible = i==1
-    frame.BackgroundTransparency = 1
-    frame.ZIndex = 3
-    frame.Parent = mainFrame
-    table.insert(categoryFrames, frame)
-end
-
--- Drag functionality for title bar
+-- DRAG FUNCTIONALITY
 local dragging, dragInput, dragStart, startPos
-local userInput = game:GetService("UserInputService")
+local UIS = game:GetService("UserInputService")
+
 titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true; dragStart = input.Position; startPos = mainFrame.Position; dragInput = input
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        dragInput = input
     end
 end)
-userInput.InputChanged:Connect(function(input)
+
+UIS.InputChanged:Connect(function(input)
     if dragging and input == dragInput then
         local delta = input.Position - dragStart
         mainFrame.Position = UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)
     end
 end)
-userInput.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
 end)
 
--- GUI open/close/minimize
+-- Menu button to open
+local menuButton=Instance.new("ImageButton")
+menuButton.Size=UDim2.new(0,63,0,63)
+menuButton.Position=UDim2.new(0,17,0,19)
+menuButton.Image="rbxassetid://6035047376"
+menuButton.BackgroundColor3=Color3.fromRGB(80,80,140)
+menuButton.ZIndex=4
+menuButton.AutoButtonColor=true
+roundify(menuButton,12)
+menuButton.Parent=sidebar
+
+-- Close and Minimize
+local closeButton=Instance.new("ImageButton")
+closeButton.Size=UDim2.new(0,44,0,44)
+closeButton.Position=UDim2.new(1,-49,0,6)
+closeButton.Image="rbxassetid://4590657391"
+closeButton.BackgroundTransparency=1
+closeButton.ZIndex=9
+closeButton.Parent=titleBar
+
+local minimizeButton=Instance.new("ImageButton")
+minimizeButton.Size=UDim2.new(0,44,0,44)
+minimizeButton.Position=UDim2.new(1,-95,0,6)
+minimizeButton.Image="rbxassetid://1199397638"
+minimizeButton.BackgroundTransparency=1
+minimizeButton.ZIndex=10
+minimizeButton.Parent=titleBar
+
+local unminimizeButton=Instance.new("TextButton")
+unminimizeButton.Size=UDim2.new(0,160,0,54)
+unminimizeButton.Position=UDim2.new(0.5,-80,1,28)
+unminimizeButton.Text="Restore Menu"
+unminimizeButton.BackgroundColor3=Color3.fromRGB(80,80,120)
+unminimizeButton.TextColor3=Color3.fromRGB(240,240,255)
+unminimizeButton.TextScaled=true
+unminimizeButton.Visible=false
+unminimizeButton.ZIndex=12
+roundify(unminimizeButton,13)
+unminimizeButton.Parent=screenGui
+
+-- Sidebar category buttons
+local categories={
+    {"Home","rbxassetid://6026568198"},
+    {"ESP","rbxassetid://6034996695"},
+    {"Aim","rbxassetid://6023426915"},
+    {"About","rbxassetid://6023426956"}
+}
+local categoryFrames, categoryButtons={},{}
+local yOff=97
+for i,cat in ipairs(categories)do
+    local btn=Instance.new("ImageButton")
+    btn.Size=UDim2.new(0,64,0,64)
+    btn.Position=UDim2.new(0,15,0,yOff)
+    btn.Image=cat[2]
+    btn.BackgroundColor3=Color3.fromRGB(54,54,90)
+    btn.ZIndex=5
+    btn.Name=cat[1]
+    roundify(btn,32)
+    gradient(btn,{Color3.fromRGB(60+10*i,60+10*i,100),Color3.fromRGB(40,40,70)})
+    btn.Parent=sidebar
+    table.insert(categoryButtons,btn)
+    yOff=yOff+72
+
+    local frame=Instance.new("Frame")
+    frame.Name=cat[1].."Frame"
+    frame.Size=UDim2.new(1,-92,1,-70)
+    frame.Position=UDim2.new(0,86,0,52)
+    frame.Visible=i==1
+    frame.BackgroundTransparency=1
+    frame.ZIndex=4
+    frame.Parent=mainFrame
+    table.insert(categoryFrames,frame)
+end
+
+-- Open/Close/Minimize logic
 local function openMenu()
-    mainFrame.Visible = true
-    unminimizeButton.Visible = false
+    mainFrame.Visible=true
+    unminimizeButton.Visible=false
 end
 local function closeMenu()
-    mainFrame.Visible = false
-    unminimizeButton.Visible = false
+    mainFrame.Visible=false
+    unminimizeButton.Visible=false
 end
 local function minimizeMenu()
-    mainFrame.Visible = false
-    unminimizeButton.Visible = true
+    mainFrame.Visible=false
+    unminimizeButton.Visible=true
 end
 local function restoreMenu()
-    mainFrame.Visible = true
-    unminimizeButton.Visible = false
+    mainFrame.Visible=true
+    unminimizeButton.Visible=false
 end
 
 menuButton.MouseButton1Click:Connect(openMenu)
@@ -207,83 +187,83 @@ closeButton.MouseButton1Click:Connect(closeMenu)
 minimizeButton.MouseButton1Click:Connect(minimizeMenu)
 unminimizeButton.MouseButton1Click:Connect(restoreMenu)
 
--- CATEGORY LOGIC
-for i, btn in ipairs(categoryButtons) do
+for i,btn in ipairs(categoryButtons)do
     btn.MouseButton1Click:Connect(function()
-        for k,frame in ipairs(categoryFrames) do frame.Visible = false end
-        categoryFrames[i].Visible = true
+        for k,frame in ipairs(categoryFrames)do frame.Visible=false end
+        categoryFrames[i].Visible=true
     end)
 end
 
--- CATEGORY FRAMES POPULATE
--- 1. Home Frame
-local homeText = Instance.new("TextLabel")
-homeText.Size = UDim2.new(1, -40, 0, 60)
-homeText.Position = UDim2.new(0, 20, 0, 20)
-homeText.Text = "Welcome to Book-O! Select a feature on the left."
-homeText.Font = Enum.Font.GothamSemibold
-homeText.TextSize = 26
-homeText.TextColor3 = Color3.fromRGB(170, 220, 255)
-homeText.BackgroundTransparency = 1
-homeText.Parent = categoryFrames[1]
+-- Home frame
+local homeText=Instance.new("TextLabel")
+homeText.Size=UDim2.new(1,-24,0,60)
+homeText.Position=UDim2.new(0,12,0,21)
+homeText.Text="Welcome to Book-O!\nChoose a feature on the left."
+homeText.Font=Enum.Font.GothamSemibold
+homeText.TextSize=24
+homeText.TextColor3=Color3.fromRGB(170,220,255)
+homeText.BackgroundTransparency=1
+homeText.TextWrapped=true
+homeText.Parent=categoryFrames[1]
 
--- 2. ESP frame
-local espToggle = Instance.new("TextButton")
-espToggle.Size = UDim2.new(0, 260, 0, 44)
-espToggle.Position = UDim2.new(0, 40, 0, 30)
-espToggle.Text = "Toggle ESP (show Murderer/Sheriff)"
-espToggle.Font = Enum.Font.Gotham
-espToggle.TextScaled = true
-espToggle.BackgroundColor3 = Color3.fromRGB(60, 80, 130)
-espToggle.TextColor3 = Color3.fromRGB(255,255,255)
-roundify(espToggle, 10)
-espToggle.Parent = categoryFrames[2]
+-- ESP frame
+local espToggle=Instance.new("TextButton")
+espToggle.Size=UDim2.new(0,214,0,48)
+espToggle.Position=UDim2.new(0,33,0,37)
+espToggle.Text="Toggle ESP\n(Murderer/Sheriff)"
+espToggle.Font=Enum.Font.Gotham
+espToggle.TextScaled=true
+espToggle.BackgroundColor3=Color3.fromRGB(60,80,130)
+espToggle.TextColor3=Color3.fromRGB(255,255,255)
+roundify(espToggle,11)
+espToggle.Parent=categoryFrames[2]
 
--- 3. Aim frame: Auto aim buttons
-local aimMurdererBtn = Instance.new("TextButton")
-aimMurdererBtn.Size = UDim2.new(0, 220, 0, 42)
-aimMurdererBtn.Position = UDim2.new(0, 50, 0, 40)
-aimMurdererBtn.Text = "Auto Aim: Murderer"
-aimMurdererBtn.Font = Enum.Font.GothamSemibold
-aimMurdererBtn.TextScaled = true
-aimMurdererBtn.BackgroundColor3 = Color3.fromRGB(255,60,80)
-aimMurdererBtn.TextColor3 = Color3.fromRGB(255,255,255)
-roundify(aimMurdererBtn, 12)
-aimMurdererBtn.Parent = categoryFrames[3]
+-- Aim frame
+local aimMurdererBtn=Instance.new("TextButton")
+aimMurdererBtn.Size=UDim2.new(0,181,0,41)
+aimMurdererBtn.Position=UDim2.new(0,46,0,41)
+aimMurdererBtn.Text="Auto Aim: Murderer"
+aimMurdererBtn.Font=Enum.Font.GothamSemibold
+aimMurdererBtn.TextScaled=true
+aimMurdererBtn.BackgroundColor3=Color3.fromRGB(255,60,80)
+aimMurdererBtn.TextColor3=Color3.fromRGB(255,255,255)
+roundify(aimMurdererBtn,13)
+aimMurdererBtn.Parent=categoryFrames[3]
 
-local aimSheriffBtn = Instance.new("TextButton")
-aimSheriffBtn.Size = UDim2.new(0, 220, 0, 42)
-aimSheriffBtn.Position = UDim2.new(0, 50, 0, 105)
-aimSheriffBtn.Text = "Auto Aim: Sheriff"
-aimSheriffBtn.Font = Enum.Font.GothamSemibold
-aimSheriffBtn.TextScaled = true
-aimSheriffBtn.BackgroundColor3 = Color3.fromRGB(60,60,255)
-aimSheriffBtn.TextColor3 = Color3.fromRGB(255,255,255)
-roundify(aimSheriffBtn, 12)
-aimSheriffBtn.Parent = categoryFrames[3]
+local aimSheriffBtn=Instance.new("TextButton")
+aimSheriffBtn.Size=UDim2.new(0,181,0,41)
+aimSheriffBtn.Position=UDim2.new(0,46,0,98)
+aimSheriffBtn.Text="Auto Aim: Sheriff"
+aimSheriffBtn.Font=Enum.Font.GothamSemibold
+aimSheriffBtn.TextScaled=true
+aimSheriffBtn.BackgroundColor3=Color3.fromRGB(68,68,210)
+aimSheriffBtn.TextColor3=Color3.fromRGB(255,255,255)
+roundify(aimSheriffBtn,13)
+aimSheriffBtn.Parent=categoryFrames[3]
 
--- 4. About Frame
-local aboutText = Instance.new("TextLabel")
-aboutText.Size = UDim2.new(1, -40, 0, 40)
-aboutText.Position = UDim2.new(0, 20, 0, 24)
-aboutText.Text = "Book-O Menu by petsimulatorx558-glitch"
-aboutText.TextColor3 = Color3.fromRGB(220,220,255)
-aboutText.Font = Enum.Font.Gotham
-aboutText.TextSize = 18
-aboutText.BackgroundTransparency = 1
-aboutText.Parent = categoryFrames[4]
+-- About frame
+local aboutText=Instance.new("TextLabel")
+aboutText.Size=UDim2.new(1,-24,0,34)
+aboutText.Position=UDim2.new(0,12,0,24)
+aboutText.Text="Book-O Menu by petsimulatorx558-glitch"
+aboutText.TextColor3=Color3.fromRGB(220,220,255)
+aboutText.Font=Enum.Font.Gotham
+aboutText.TextSize=19
+aboutText.BackgroundTransparency=1
+aboutText.Parent=categoryFrames[4]
 
-local aboutDesc = Instance.new("TextLabel")
-aboutDesc.Size = UDim2.new(1, -40, 0, 80)
-aboutDesc.Position = UDim2.new(0, 20, 0, 60)
-aboutDesc.Text = "Modern UI. ESP and Auto Aim (Murderer/Sheriff). Drag, minimize, restore. Enjoy!"
-aboutDesc.TextColor3 = Color3.fromRGB(190,190,230)
-aboutDesc.Font = Enum.Font.GothamLight
-aboutDesc.TextSize = 16
-aboutDesc.BackgroundTransparency = 1
-aboutDesc.Parent = categoryFrames[4]
+local aboutDesc=Instance.new("TextLabel")
+aboutDesc.Size=UDim2.new(1,-24,0,52)
+aboutDesc.Position=UDim2.new(0,12,0,62)
+aboutDesc.Text="Mobile-friendly | ESP | Auto Aim\nMinimize, Restore, Drag"
+aboutDesc.TextColor3=Color3.fromRGB(190,190,230)
+aboutDesc.Font=Enum.Font.GothamLight
+aboutDesc.TextSize=15
+aboutDesc.BackgroundTransparency=1
+aboutDesc.TextWrapped=true
+aboutDesc.Parent=categoryFrames[4]
 
--- ESP Logic & Utilities
+-- ESP logic
 local function Notify(tbl)
     pcall(function()
         game.StarterGui:SetCore("SendNotification", tbl)
@@ -291,65 +271,56 @@ local function Notify(tbl)
 end
 
 local function findMurderer()
-    for _, plr in ipairs(game.Players:GetPlayers()) do
-        if plr:FindFirstChild("Backpack") and plr.Backpack:FindFirstChild("Knife") then
-            return plr
-        end
-        if plr.Character and plr.Character:FindFirstChild("Knife") then
-            return plr
-        end
+    for _,plr in ipairs(game.Players:GetPlayers())do
+        if plr:FindFirstChild("Backpack")and plr.Backpack:FindFirstChild("Knife")then return plr end
+        if plr.Character and plr.Character:FindFirstChild("Knife") then return plr end
     end
 end
+
 local function findSheriff()
-    for _, plr in ipairs(game.Players:GetPlayers()) do
-        if plr:FindFirstChild("Backpack") and plr.Backpack:FindFirstChild("Gun") then
-            return plr
-        end
-        if plr.Character and plr.Character:FindFirstChild("Gun") then
-            return plr
-        end
+    for _,plr in ipairs(game.Players:GetPlayers())do
+        if plr:FindFirstChild("Backpack")and plr.Backpack:FindFirstChild("Gun")then return plr end
+        if plr.Character and plr.Character:FindFirstChild("Gun")then return plr end
     end
 end
 
 local function clearESP()
-    for _, plr in pairs(game.Players:GetPlayers()) do
+    for _,plr in pairs(game.Players:GetPlayers())do
         if plr.Character then
-            for _, obj in ipairs(plr.Character:GetDescendants()) do
-                if obj:IsA("BoxHandleAdornment") then
-                    obj:Destroy()
-                end
+            for _,obj in ipairs(plr.Character:GetDescendants())do
+                if obj:IsA("BoxHandleAdornment")then obj:Destroy()end
             end
         end
     end
 end
 
 local function addESPToPlayer(player, color)
-    if not player.Character then return end
-    for _, part in ipairs(player.Character:GetDescendants()) do
-        if (part:IsA("Part") or part:IsA("MeshPart")) then
-            for _, adorn in ipairs(part:GetChildren()) do
-                if adorn:IsA("BoxHandleAdornment") then adorn:Destroy() end
+    if not player or not player.Character then return end
+    for _,part in ipairs(player.Character:GetDescendants())do
+        if (part:IsA("Part") or part:IsA("MeshPart"))then
+            for _,adorn in ipairs(part:GetChildren())do
+                if adorn:IsA("BoxHandleAdornment")then adorn:Destroy()end
             end
-            local espBox = Instance.new("BoxHandleAdornment")
-            espBox.Parent = part
-            espBox.Adornee = part
-            espBox.AlwaysOnTop = true
-            espBox.Transparency = 0.7
-            espBox.Size = part.Size
-            espBox.Color3 = color
-            espBox.ZIndex = 0
+            local espBox=Instance.new("BoxHandleAdornment")
+            espBox.Parent=part
+            espBox.Adornee=part
+            espBox.AlwaysOnTop=true
+            espBox.Transparency=0.7
+            espBox.Size=part.Size
+            espBox.Color3=color
+            espBox.ZIndex=0
         end
     end
 end
 
-local espEnabled = false
+local espEnabled=false
 local function applyESP()
     clearESP()
     if not espEnabled then return end
-    local murderer = findMurderer()
-    local sheriff = findSheriff()
-    if murderer then addESPToPlayer(murderer, Color3.fromRGB(255,0,70)) end
-    if sheriff then addESPToPlayer(sheriff, Color3.fromRGB(30,30,255)) end
+    local murderer=findMurderer()
+    local sheriff=findSheriff()
+    if murderer then addESPToPlayer(murderer,Color3.fromRGB(255,0,70))end
+    if sheriff then addESPToPlayer(sheriff,Color3.fromRGB(30,30,255))end
 end
 
 local function updateESPRole()
@@ -359,51 +330,47 @@ end
 game.Players.PlayerAdded:Connect(function(plr)
     plr.CharacterAdded:Connect(updateESPRole)
 end)
-for _, plr in pairs(game.Players:GetPlayers()) do
+for _,plr in pairs(game.Players:GetPlayers())do
     plr.CharacterAdded:Connect(updateESPRole)
 end
 
 espToggle.MouseButton1Click:Connect(function()
-    espEnabled = not espEnabled
+    espEnabled=not espEnabled
     if espEnabled then
-        Notify({Title = "ESP On", Text = "Murderer/Sheriff highlighted!", Duration = 3})
+        Notify({Title="ESP On",Text="Murderer/Sheriff highlighted!",Duration=3})
     else
         clearESP()
-        Notify({Title = "ESP Off", Text = "Highlight removed.", Duration = 2})
+        Notify({Title="ESP Off",Text="Highlight removed.",Duration=2})
     end
     applyESP()
 end)
 
--- AUTO AIM
+-- Auto Aim
 local function aimAtPlayer(player)
-    if not player or not player.Character or not player.Character:FindFirstChild("Head") then
-        Notify({Title="Auto Aim","Text"="Target not found!", Duration=2}); return
+    if not player or not player.Character or not player.Character:FindFirstChild("Head")then
+        Notify({Title="Auto Aim",Text="Target not found!",Duration=2})
+        return
     end
-    local cam = workspace.CurrentCamera
-    local char = player.Character
-    local head = char:FindFirstChild("Head")
+    local cam=workspace.CurrentCamera
+    local char=player.Character
+    local head=char:FindFirstChild("Head")
     if not cam or not head then return end
 
-    -- Smooth camera tween
-    local targetPos = head.Position
-    local tweenService = game:GetService("TweenService")
-    local info = TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
-    local prop = {CFrame = CFrame.new(cam.CFrame.Position, targetPos)}
-    local tween = tweenService:Create(cam, info, prop)
+    -- Camera focus
+    local targetPos=head.Position
+    local tweenService=game:GetService("TweenService")
+    local info=TweenInfo.new(0.22,Enum.EasingStyle.Sine,Enum.EasingDirection.Out)
+    local prop={CFrame=CFrame.new(cam.CFrame.Position,targetPos)}
+    local tween=tweenService:Create(cam,info,prop)
     tween:Play()
 end
 
-aimMurdererBtn.MouseButton1Click:Connect(function()
-    local murd = findMurderer()
-    aimAtPlayer(murd)
-end)
-aimSheriffBtn.MouseButton1Click:Connect(function()
-    local sh = findSheriff()
-    aimAtPlayer(sh)
-end)
+aimMurdererBtn.MouseButton1Click:Connect(function() aimAtPlayer(findMurderer()) end)
+aimSheriffBtn.MouseButton1Click:Connect(function() aimAtPlayer(findSheriff()) end)
 
--- Make sure menu opens automatically at start
-wait(0.5)
-mainFrame.Visible = true
+-- Open menu automatically
+wait(.7)
+mainFrame.Visible=true
 
--- End of script
+-- Drag enabled for TitleBar (mobile and pc)
+-- Book-O for Delta by petsimulatorx558-glitch
