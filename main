@@ -1763,4 +1763,380 @@ function OrionLib:Destroy()
 	Orion:Destroy()
 end
 
+-- Advanced MM2 Cheats for Onion UI (20 Features!)
+local OrionMM2 = OrionLib:MakeWindow({
+    Name = "MM2 Cheats",
+    IntroText = "Onion MM2 Script",
+    SaveConfig = false,
+    ShowIcon = true,
+    Icon = "rbxassetid://7072719338"
+})
+
+local MM2Tab = OrionMM2:MakeTab({Name = "Main Features", Icon = "rbxassetid://7072725342"})
+MM2Tab:AddLabel("Advanced MM2 Cheats (20 Features)")
+
+local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local ESPObjects, CoinFarmActive, SpeedActive, JumpActive, NoclipActive = {}, false, false, false, false
+
+-- Utils
+local function getRole(plr)
+    if plr.Character then
+        for _,v in pairs(plr.Character:GetChildren()) do
+            if v:IsA("Tool") and v.Name == "Knife" then return "Murderer" end
+            if v:IsA("Tool") and v.Name == "Gun" then return "Sheriff" end
+        end
+    end
+    return "Innocent"
+end
+
+local function refreshESP()
+    for _,v in pairs(Players:GetPlayers()) do
+        if v ~= LocalPlayer then
+            local char = v.Character
+            if char and char:FindFirstChild("Head") then
+                if not ESPObjects[v.Name] then
+                    local gui = Instance.new("BillboardGui")
+                    gui.Name = "ESP_"..v.Name
+                    gui.Adornee = char.Head
+                    gui.Size = UDim2.new(0,120,0,30)
+                    gui.AlwaysOnTop = true
+                    local lbl = Instance.new("TextLabel", gui)
+                    lbl.Size = UDim2.new(1,0,1,0)
+                    lbl.BackgroundTransparency = 1
+                    lbl.TextStrokeTransparency = 0
+                    lbl.Font = Enum.Font.GothamBold
+                    lbl.TextSize = 16
+                    gui.Parent = Workspace
+                    ESPObjects[v.Name] = gui
+                end
+                local lbl = ESPObjects[v.Name]:FindFirstChildOfClass("TextLabel")
+                local r = getRole(v)
+                lbl.Text = v.DisplayName.." ["..r.."]"
+                if r=="Murderer" then lbl.TextColor3 = Color3.fromRGB(255,0,50)
+                elseif r=="Sheriff" then lbl.TextColor3 = Color3.fromRGB(0,170,255)
+                else lbl.TextColor3 = Color3.fromRGB(230,230,230) end
+            end
+        end
+    end
+end
+
+local function removeESP()
+    for _,v in pairs(ESPObjects) do v:Destroy() end
+    ESPObjects = {}
+end
+
+-- 1. Role ESP
+MM2Tab:AddToggle({
+    Name = "Role ESP (Show Murderer/Sheriff)",
+    Default = false,
+    Callback = function(on) if on then refreshESP() else removeESP() end end
+})
+
+-- 2. Rainbow Name ESP
+local RainbowESPActive = false
+MM2Tab:AddToggle({
+    Name = "Rainbow Name ESP",
+    Default = false,
+    Callback = function(on)
+        RainbowESPActive = on
+        if on then
+            spawn(function()
+                while RainbowESPActive do
+                    for _,v in pairs(ESPObjects) do
+                        local lbl = v:FindFirstChildOfClass("TextLabel")
+                        if lbl then lbl.TextColor3 = Color3.fromHSV(tick()%5/5,1,1) end
+                    end
+                    wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+-- 3. Auto-Collect Coins
+MM2Tab:AddToggle({
+    Name = "Auto-Collect Coins",
+    Default = false,
+    Callback = function(on)
+        CoinFarmActive = on
+        if on then
+            spawn(function()
+                while CoinFarmActive do
+                    local coins = Workspace:FindFirstChild("Coins")
+                    if coins then
+                        for _, coin in ipairs(coins:GetChildren()) do
+                            if coin:IsA("Part") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                                LocalPlayer.Character.HumanoidRootPart.CFrame = coin.CFrame + Vector3.new(0,2,0)
+                                wait(0.1)
+                            end
+                        end
+                    end
+                    wait(1)
+                end
+            end)
+        end
+    end
+})
+
+-- 4. Auto Pick Gun
+local AutoPickGunActive = false
+MM2Tab:AddToggle({
+    Name = "Auto-Pickup dropped Gun",
+    Default = false,
+    Callback = function(on)
+        AutoPickGunActive = on
+        if on then
+            spawn(function()
+                while AutoPickGunActive do
+                    local gun = Workspace:FindFirstChild("GunDrop")
+                    if gun and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        LocalPlayer.Character.HumanoidRootPart.CFrame = gun.CFrame + Vector3.new(0,2,0)
+                    end
+                    wait(0.5)
+                end
+            end)
+        end
+    end
+})
+
+-- 5. Speed Hack
+local DefaultWalk = 16
+MM2Tab:AddToggle({
+    Name = "Speed Hack (Fast Walk)",
+    Default = false,
+    Callback = function(on)
+        SpeedActive = on
+        if on and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid.WalkSpeed = 40
+        else
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                LocalPlayer.Character.Humanoid.WalkSpeed = DefaultWalk
+            end
+        end
+    end
+})
+
+-- 6. High Jump
+local DefaultJump = 50
+MM2Tab:AddToggle({
+    Name = "High Jump",
+    Default = false,
+    Callback = function(on)
+        JumpActive = on
+        if on and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid.JumpPower = 120
+        else
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                LocalPlayer.Character.Humanoid.JumpPower = DefaultJump
+            end
+        end
+    end
+})
+
+-- 7. Noclip
+MM2Tab:AddToggle({
+    Name = "Noclip (Walk through walls)",
+    Default = false,
+    Callback = function(on)
+        NoclipActive = on
+        if on then
+            spawn(function()
+                while NoclipActive do
+                    if LocalPlayer.Character then
+                        for _,v in pairs(LocalPlayer.Character:GetChildren()) do
+                            if v:IsA("BasePart") then
+                                v.CanCollide = false
+                            end
+                        end
+                    end
+                    wait()
+                end
+            end)
+        end
+    end
+})
+
+-- 8. Teleport To Lobby
+MM2Tab:AddButton({
+    Name = "Teleport to Lobby",
+    Callback = function()
+        local lobby = Workspace:FindFirstChild("Lobby")
+        if lobby and lobby:FindFirstChild("Spawn") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = lobby.Spawn.CFrame + Vector3.new(0,2,0)
+        end
+    end
+})
+
+-- 9. Teleport To Murderer
+MM2Tab:AddButton({
+    Name = "Teleport to Murderer",
+    Callback = function()
+        local murderer = nil
+        for _,v in pairs(Players:GetPlayers()) do
+            if getRole(v)=="Murderer" then murderer=v end
+        end
+        if murderer and murderer.Character and murderer.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = murderer.Character.HumanoidRootPart.CFrame + Vector3.new(0,3,0)
+        end
+    end
+})
+
+-- 10. Teleport To Sheriff
+MM2Tab:AddButton({
+    Name = "Teleport to Sheriff",
+    Callback = function()
+        local sheriff = nil
+        for _,v in pairs(Players:GetPlayers()) do
+            if getRole(v)=="Sheriff" then sheriff=v end
+        end
+        if sheriff and sheriff.Character and sheriff.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = sheriff.Character.HumanoidRootPart.CFrame + Vector3.new(0,3,0)
+        end
+    end
+})
+
+-- 11. Teleport To Closest Coin
+MM2Tab:AddButton({
+    Name = "Teleport to Closest Coin",
+    Callback = function()
+        local coins = Workspace:FindFirstChild("Coins")
+        local closest, minDist = nil, math.huge
+        if coins and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            for _, coin in ipairs(coins:GetChildren()) do
+                if coin:IsA("Part") then
+                    local dist = (coin.Position - LocalPlayer.Character.HumanoidRootPart.Position).magnitude
+                    if dist < minDist then closest = coin; minDist = dist end
+                end
+            end
+            if closest then LocalPlayer.Character.HumanoidRootPart.CFrame = closest.CFrame + Vector3.new(0,2,0) end
+        end
+    end
+})
+
+-- 12. Godmode (Experimental)
+MM2Tab:AddButton({
+    Name = "Godmode (Experimental)",
+    Callback = function()
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid.Name = "1"
+            local cl = LocalPlayer.Character["1"]:Clone()
+            cl.Parent = LocalPlayer.Character
+            cl.Name = "Humanoid"
+            wait(.1)
+            LocalPlayer.Character["1"]:Destroy()
+        end
+    end
+})
+
+-- 13. Anti AFK
+MM2Tab:AddToggle({
+    Name = "Anti-AFK",
+    Default = false,
+    Callback = function(on)
+        if on then
+            for _,c in pairs(getconnections(LocalPlayer.Idled)) do
+                c:Disable() -- disables default idle kick
+            end
+        end
+    end
+})
+
+-- 14. Spam Chat (Client Only)
+MM2Tab:AddButton({
+    Name = "Spam Chat (Client)",
+    Callback = function()
+        for i = 1, 15 do
+            game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("I love Onion MM2!", "All")
+        end
+    end
+})
+
+-- 15. Display Coin Count
+local coinLabel = MM2Tab:AddLabel("Coins: 0")
+MM2Tab:AddButton({
+    Name = "Update Coins Count",
+    Callback = function()
+        local coins = Workspace:FindFirstChild("Coins")
+        local count = coins and #coins:GetChildren() or 0
+        coinLabel:Set("Coins: "..count)
+    end
+})
+
+-- 16. Display All Roles
+MM2Tab:AddButton({
+    Name = "Show All Player Roles",
+    Callback = function()
+        local output = "[MM2 Roles]\n"
+        for _,v in pairs(Players:GetPlayers()) do output = output .. v.Name .. ": " .. getRole(v) .. "\n" end
+        OrionLib:MakeNotification({Name="Player Roles", Content=output, Time=5})
+    end
+})
+
+-- 17. Streamer Mode (Hide DisplayName)
+local StreamerModeActive = false
+MM2Tab:AddToggle({
+    Name = "Streamer Mode (Hide name)",
+    Default = false,
+    Callback = function(on)
+        StreamerModeActive = on
+        if on then LocalPlayer.Name = "Anonymous" end
+    end
+})
+
+-- 18. Equip Knife (If murderer)
+MM2Tab:AddButton({
+    Name = "Equip Knife",
+    Callback = function()
+        local char = LocalPlayer.Character
+        if char then
+            for _,v in pairs(char:GetChildren()) do
+                if v:IsA("Tool") and v.Name == "Knife" then
+                    char.Humanoid:EquipTool(v)
+                end
+            end
+        end
+    end
+})
+
+-- 19. Equip Gun (If sheriff)
+MM2Tab:AddButton({
+    Name = "Equip Gun",
+    Callback = function()
+        local char = LocalPlayer.Character
+        if char then
+            for _,v in pairs(char:GetChildren()) do
+                if v:IsA("Tool") and v.Name == "Gun" then
+                    char.Humanoid:EquipTool(v)
+                end
+            end
+        end
+    end
+})
+
+-- 20. Spectate Murderer/Sheriff
+MM2Tab:AddDropdown({
+    Name = "Spectate Role",
+    Default = "None",
+    Options = {"None", "Murderer", "Sheriff"},
+    Callback = function(role)
+        local target
+        for _,v in pairs(Players:GetPlayers()) do
+            if getRole(v) == role then target = v end
+        end
+        if target and target.Character and target.Character:FindFirstChild("Head") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            workspace.CurrentCamera.CameraSubject = target.Character.Head
+        else
+            workspace.CurrentCamera.CameraSubject = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+        end
+    end
+})
+
+-- Final Info
+MM2Tab:AddParagraph("20 Features!", [[
+All features can be toggled or activated in this panel.
+Popular MM2 features with Onion UI: ESP, Teleports, Speed, Jump, Godmode, Role info, and more!
+]])
+
 return OrionLib
