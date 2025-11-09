@@ -46,6 +46,17 @@ minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 minimizeButton.TextScaled = true
 minimizeButton.Parent = dragArea
 
+-- Minimize/Unminimize overlay
+local unminimizeButton = Instance.new("TextButton")
+unminimizeButton.Size = UDim2.new(0, 80, 0, 40)
+unminimizeButton.Position = UDim2.new(0, 10, 0, 60)
+unminimizeButton.Text = "Unminimize"
+unminimizeButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+unminimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+unminimizeButton.TextScaled = true
+unminimizeButton.Visible = false
+unminimizeButton.Parent = screenGui
+
 -- Create the title label
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0, 200, 0, 40)
@@ -90,164 +101,198 @@ for i, category in ipairs(categories) do
     table.insert(categoryFrames, categoryFrame)
 end
 
--- ESP functionality
+-- Notification function
+local function Notify(tbl)
+    game.StarterGui:SetCore("SendNotification", tbl)
+end
+
+-- Role finder functions (improved)
+local function findMurderer()
+    for _, plr in ipairs(game.Players:GetPlayers()) do
+        if plr:FindFirstChild("Backpack") and plr.Backpack:FindFirstChild("Knife") then
+            return plr.Name
+        end
+        if plr.Character and plr.Character:FindFirstChild("Knife") then
+            return plr.Name
+        end
+    end
+    return nil
+end
+
+local function findSheriff()
+    for _, plr in ipairs(game.Players:GetPlayers()) do
+        if plr:FindFirstChild("Backpack") and plr.Backpack:FindFirstChild("Gun") then
+            return plr.Name
+        end
+        if plr.Character and plr.Character:FindFirstChild("Gun") then
+            return plr.Name
+        end
+    end
+    return nil
+end
+
+-- Track murderer/sheriff
+local imposter = findMurderer()
+local pig = findSheriff()
+
+-- Update roles and ESP every round (detect by listening to round-related remotes/events)
+local function UpdateRoles()
+    imposter = findMurderer()
+    pig = findSheriff()
+end
+
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        UpdateRoles()
+    end)
+end)
+
+for _, plr in ipairs(game.Players:GetPlayers()) do
+    plr.CharacterAdded:Connect(UpdateRoles)
+end
+
+-- ESP logic
 local espEnabled = false
+local function clearESP()
+    for _, plr in pairs(game.Players:GetPlayers()) do
+        if plr.Character then
+            for _, obj in ipairs(plr.Character:GetDescendants()) do
+                if obj:IsA("BoxHandleAdornment") then
+                    obj:Destroy()
+                end
+            end
+        end
+    end
+end
+
+local function addESPToPlayer(player, color)
+    if not player.Character then return end
+    for _, part in ipairs(player.Character:GetDescendants()) do
+        if (part:IsA("Part") or part:IsA("MeshPart")) then
+            -- Remove old ESP
+            for _, adorn in ipairs(part:GetChildren()) do
+                if adorn:IsA("BoxHandleAdornment") then adorn:Destroy() end
+            end
+            -- Add new
+            local espBox = Instance.new("BoxHandleAdornment")
+            espBox.Parent = part
+            espBox.Adornee = part
+            espBox.AlwaysOnTop = true
+            espBox.Transparency = 0.75
+            espBox.Size = part.Size
+            espBox.Color3 = color
+            espBox.ZIndex = 0
+        end
+    end
+end
+
+local function applyESP()
+    clearESP()
+    if not espEnabled then return end
+    imposter = findMurderer()
+    pig = findSheriff()
+    for _, plr in ipairs(game.Players:GetPlayers()) do
+        if plr.Name == imposter then
+            addESPToPlayer(plr, Color3.fromRGB(255, 0, 4))
+        elseif plr.Name == pig then
+            addESPToPlayer(plr, Color3.fromRGB(0, 12, 255))
+        end
+    end
+end
 
 local function toggleESP()
     espEnabled = not espEnabled
     if espEnabled then
-        esp()
+        Notify({
+            Title = "ESP Enabled!",
+            Text = "Players with roles will be highlighted.",
+            Duration = 3
+        })
     else
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v.Name == imposter or v.Name == pig then
-                for _, part in pairs(v.Character:GetDescendants()) do
-                    if part:IsA("BoxHandleAdornment") then
-                        part:Destroy()
-                    end
-                end
-            end
-        end
+        clearESP()
+        Notify({
+            Title = "ESP Disabled.",
+            Text = "",
+            Duration = 2
+        })
     end
+    applyESP()
 end
 
--- Function to send notifications
-local function Notify(...)
-    game.StarterGui:SetCore('SendNotification', ...)
-end
-
--- Basic inventory checks for Murderer and Sheriff
-local function findsussy()
-    for _, v in pairs(game.Players:GetChildren()) do
-        if (v.Backpack:FindFirstChild("Knife") or v.Character:FindFirstChild("Knife")) and v.Name == "Tool" then
-            return v.Name
-        end
-    end
-    return nil
-end
-
-local function findpig()
-    for _, v in pairs(game.Players:GetChildren()) do
-        if (v.Backpack:FindFirstChild("Gun") or v.Character:FindFirstChild("Gun")) and v.Name == "Tool" then
-            return v.Name
-        end
-    end
-    return nil
-end
-
--- Initialize imposter and pig variables
-local imposter = findsussy()
-local pig = findpig()
-
--- ESP STUFF BELOW!
-local function esp()
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v.Name == imposter then
-            for _, part in pairs(v.Character:GetDescendants()) do
-                if part:IsA("Part") or part:IsA("MeshPart") then
-                    if part.Name == "BoxHandleAdornment" then
-                        part:Destroy()
-                    end
-                    local funny = Instance.new("BoxHandleAdornment") -- imposter esp
-                    funny.Parent = part
-                    funny.Adornee = part
-                    funny.AlwaysOnTop = true
-                    funny.Transparency = 0.8
-                    funny.ZIndex = 0
-                    funny.Size = part.Size
-                    funny.Color3 = Color3.fromRGB(255, 0, 4)
-                end
-            end
-        elseif v.Name == pig then
-            for _, part in pairs(v.Character:GetDescendants()) do
-                if part:IsA("Part") or part:IsA("MeshPart") then
-                    if part.Name == "BoxHandleAdornment" then
-                        part:Destroy()
-                    end
-                    local funny = Instance.new("BoxHandleAdornment") -- pig esp
-                    funny.Parent = part
-                    funny.Adornee = part
-                    funny.AlwaysOnTop = true
-                    funny.Transparency = 0.8
-                    funny.ZIndex = 0
-                    funny.Size = part.Size
-                    funny.Color3 = Color3.fromRGB(0, 12, 255)
-                end
-            end
-        end
-    end
-end
-
--- Hook into the namecall event
+-- Listen for role detection on server invoke
 local mt = getrawmetatable(game)
 setreadonly(mt, false)
-local namecall = mt.__namecall
+local oldNamecall = mt.__namecall
+
 mt.__namecall = newcclosure(function(self, ...)
     local method = getnamecallmethod()
     local args = {...}
     if tostring(method) == "InvokeServer" and tostring(self) == "GetChance" then
         spawn(function()
-            wait(14)
-            if imposter and pig then
+            wait(8)
+            UpdateRoles()
+            if imposter then
                 Notify({
                     Title = "The Murderer is",
                     Text = imposter,
-                    Icon = "http://www.roblox.com/Thumbs/Avatar.ashx?x=150&y=150&Format=Png&username=" .. imposter
+                    Icon = "http://www.roblox.com/Thumbs/Avatar.ashx?x=150&y=150&Format=Png&username=" .. imposter,
+                    Duration = 5
                 })
+            end
+            if pig then
                 Notify({
                     Title = "The Sheriff is",
                     Text = pig,
-                    Icon = "http://www.roblox.com/Thumbs/Avatar.ashx?x=150&y=150&Format=Png&username=" .. pig
+                    Icon = "http://www.roblox.com/Thumbs/Avatar.ashx?x=150&y=150&Format=Png&username=" .. pig,
+                    Duration = 5
                 })
-                esp()
             end
+            applyESP()
         end)
     end
-    return namecall(self, table.unpack(args))
+    return oldNamecall(self, table.unpack(args))
 end)
 
--- Additional features and improvements
+-- Hooks for character added
 local function onPlayerAdded(player)
-    player.CharacterAdded:Connect(function(character)
-        if player.Name == imposter then
-            esp()
-        elseif player.Name == pig then
-            esp()
-        end
+    player.CharacterAdded:Connect(function()
+        applyESP()
     end)
 end
 
 game.Players.PlayerAdded:Connect(onPlayerAdded)
-for _, player in pairs(game.Players:GetPlayers()) do
-    onPlayerAdded(player)
+for _, plr in pairs(game.Players:GetPlayers()) do
+    onPlayerAdded(plr)
 end
 
--- Function to toggle main GUI visibility
+-- GUI visibility toggles
 local function toggleMainGui()
     mainFrame.Visible = not mainFrame.Visible
 end
 
--- Connect menu button click event
-menuButton.MouseButton1Click:Connect(toggleMainGui)
+local function minimizeMain()
+    mainFrame.Visible = false
+    unminimizeButton.Visible = true
+end
 
--- Connect close button click event
+local function unminimizeMain()
+    mainFrame.Visible = true
+    unminimizeButton.Visible = false
+end
+
+menuButton.MouseButton1Click:Connect(toggleMainGui)
 closeButton.MouseButton1Click:Connect(function()
     mainFrame.Visible = false
+    unminimizeButton.Visible = false
 end)
+minimizeButton.MouseButton1Click:Connect(minimizeMain)
+unminimizeButton.MouseButton1Click:Connect(unminimizeMain)
 
--- Connect minimize button click event
-minimizeButton.MouseButton1Click:Connect(function()
-    mainFrame.Size = UDim2.new(0, 300, 0, 40)
-    dragArea.Size = UDim2.new(1, 0, 0, 40)
-    contentArea.Visible = not contentArea.Visible
-end)
+-- Make frame draggable (optimized)
+local dragging, dragInput, dragStart, startPos
+local userInput = game:GetService("UserInputService")
 
--- Make the drag area dragable
-local dragging
-local dragInput
-local dragStart
-local startPos
-
-local function update(input)
+local function updateDrag(input)
     local delta = input.Position - dragStart
     mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 end
@@ -257,11 +302,8 @@ dragArea.InputBegan:Connect(function(input)
         dragging = true
         dragStart = input.Position
         startPos = mainFrame.Position
-
         input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
+            if input.UserInputState == Enum.UserInputState.End then dragging = false end
         end)
     end
 end)
@@ -272,21 +314,19 @@ dragArea.InputChanged:Connect(function(input)
     end
 end)
 
-game:GetService("UserInputService").InputChanged:Connect(function(input)
+userInput.InputChanged:Connect(function(input)
     if input == dragInput and dragging then
-        update(input)
+        updateDrag(input)
     end
 end)
 
--- Connect category button click events
+-- Category button logic
 for i, button in ipairs(categoryButtons) do
     button.MouseButton1Click:Connect(function()
-        for _, frame in ipairs(categoryFrames) do
-            frame.Visible = false
-        end
+        for _, frame in ipairs(categoryFrames) do frame.Visible = false end
         categoryFrames[i].Visible = true
     end)
 end
 
--- Connect ESP button click event
+-- Connect ESP button
 categoryButtons[2].MouseButton1Click:Connect(toggleESP)
