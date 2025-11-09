@@ -1,131 +1,139 @@
--- Load the script
-loadstring(game:HttpGet("https://raw.githubusercontent.com/s-0-a-b/nexus/main/loadstring"))()
-
--- Function to enable ESP
-local function enableESP()
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local esp = Instance.new("BoxHandleAdornment")
-            esp.Name = "ESP"
-            esp.Adornee = player.Character.HumanoidRootPart
-            esp.AlwaysOnTop = true
-            esp.ZIndex = 0
-            esp.Size = Vector3.new(4, 4, 4)
-            esp.Color3 = Color3.new(1, 0, 0) -- Red color for murderer
-            esp.Parent = player.Character.HumanoidRootPart
-        end
-    end
-end
-
--- Function to disable ESP
-local function disableESP()
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player.Character and player.Character:FindFirstChild("ESP") then
-            player.Character.ESP:Destroy()
-        end
-    end
-end
-
--- Function to enable aimbot
-local function enableAimbot()
-    local player = game.Players.LocalPlayer
-    local mouse = player:GetMouse()
-    local camera = workspace.CurrentCamera
-
-    mouse.Button1Down:Connect(function()
-        local target = nil
-        local shortestDistance = math.huge
-
-        for _, player in pairs(game.Players:GetPlayers()) do
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local distance = (camera.CFrame.p - player.Character.HumanoidRootPart.Position).magnitude
-                if distance < shortestDistance then
-                    shortestDistance = distance
-                    target = player.Character.HumanoidRootPart
-                end
-            end
-        end
-
-        if target then
-            mouse.Hit = target.Position
-        end
-    end)
-end
-
--- Function to enable auto-farm
-local function enableAutoFarm()
-    while true do
-        for _, player in pairs(game.Players:GetPlayers()) do
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local distance = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).magnitude
-                if distance < 20 then
-                    game.Players.LocalPlayer.Character.Humanoid:MoveTo(player.Character.HumanoidRootPart.Position)
-                end
-            end
-        end
-        wait(1)
-    end
-end
-
--- Create a simple GUI for toggling features
+-- Create the main ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = game:GetService("CoreGui")
 
+-- Create the main frame
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 200, 0, 150)
-mainFrame.Position = UDim2.new(0.5, -100, 0.5, -75)
-mainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+mainFrame.Size = UDim2.new(0, 300, 0, 400)
+mainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 mainFrame.Parent = screenGui
 
-local espButton = Instance.new("TextButton")
-espButton.Size = UDim2.new(0, 180, 0, 30)
-espButton.Position = UDim2.new(0.5, -90, 0, 10)
-espButton.Text = "Toggle ESP"
-espButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-espButton.TextColor3 = Color3.new(1, 1, 1)
-espButton.Parent = mainFrame
+-- Create the dragable area
+local dragArea = Instance.new("Frame")
+dragArea.Size = UDim2.new(1, 0, 0, 40)
+dragArea.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+dragArea.Parent = mainFrame
 
-local aimbotButton = Instance.new("TextButton")
-aimbotButton.Size = UDim2.new(0, 180, 0, 30)
-aimbotButton.Position = UDim2.new(0.5, -90, 0, 50)
-aimbotButton.Text = "Toggle Aimbot"
-aimbotButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-aimbotButton.TextColor3 = Color3.new(1, 1, 1)
-aimbotButton.Parent = mainFrame
+-- Create the close button (X)
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 40, 0, 40)
+closeButton.Position = UDim2.new(1, -40, 0, 0)
+closeButton.Text = "X"
+closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.TextScaled = true
+closeButton.Parent = dragArea
 
-local autoFarmButton = Instance.new("TextButton")
-autoFarmButton.Size = UDim2.new(0, 180, 0, 30)
-autoFarmButton.Position = UDim2.new(0.5, -90, 0, 90)
-autoFarmButton.Text = "Toggle Auto Farm"
-autoFarmButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-autoFarmButton.TextColor3 = Color3.new(1, 1, 1)
-autoFarmButton.Parent = mainFrame
+-- Create the minimize button
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Size = UDim2.new(0, 40, 0, 40)
+minimizeButton.Position = UDim2.new(1, -80, 0, 0)
+minimizeButton.Text = "-"
+minimizeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 200)
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.TextScaled = true
+minimizeButton.Parent = dragArea
 
--- Connect button click events
-espButton.MouseButton1Click:Connect(function()
-    if espButton.Text == "Toggle ESP" then
-        espButton.Text = "ESP Enabled"
-        enableESP()
-    else
-        espButton.Text = "Toggle ESP"
-        disableESP()
+-- Create the title label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0, 200, 0, 40)
+titleLabel.Position = UDim2.new(0, 10, 0, 0)
+titleLabel.Text = "Voidware GUI"
+titleLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextScaled = true
+titleLabel.Parent = dragArea
+
+-- Create the content area
+local contentArea = Instance.new("Frame")
+contentArea.Size = UDim2.new(1, 0, 1, -40)
+contentArea.Position = UDim2.new(0, 0, 0, 40)
+contentArea.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+contentArea.Parent = mainFrame
+
+-- Create categories
+local categories = {"Home", "ESP", "Auto Farm", "Teleport", "Speed Hacks"}
+local categoryButtons = {}
+local categoryFrames = {}
+
+for i, category in ipairs(categories) do
+    -- Create category button
+    local categoryButton = Instance.new("TextButton")
+    categoryButton.Size = UDim2.new(0, 100, 0, 50)
+    categoryButton.Position = UDim2.new(0, 10 + (i - 1) * 110, 0, 0)
+    categoryButton.Text = category
+    categoryButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    categoryButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    categoryButton.TextScaled = true
+    categoryButton.Parent = contentArea
+    table.insert(categoryButtons, categoryButton)
+
+    -- Create category frame
+    local categoryFrame = Instance.new("Frame")
+    categoryFrame.Size = UDim2.new(1, 0, 1, -50)
+    categoryFrame.Position = UDim2.new(0, 0, 0, 50)
+    categoryFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    categoryFrame.Visible = i == 1 -- Show only the first category initially
+    categoryFrame.Parent = contentArea
+    table.insert(categoryFrames, categoryFrame)
+end
+
+-- Connect close button click event
+closeButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+end)
+
+-- Connect minimize button click event
+minimizeButton.MouseButton1Click:Connect(function()
+    mainFrame.Size = UDim2.new(0, 300, 0, 40)
+    dragArea.Size = UDim2.new(1, 0, 0, 40)
+    contentArea.Visible = not contentArea.Visible
+end)
+
+-- Make the drag area dragable
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+dragArea.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
     end
 end)
 
-aimbotButton.MouseButton1Click:Connect(function()
-    if aimbotButton.Text == "Toggle Aimbot" then
-        aimbotButton.Text = "Aimbot Enabled"
-        enableAimbot()
-    else
-        aimbotButton.Text = "Toggle Aimbot"
+dragArea.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
     end
 end)
 
-autoFarmButton.MouseButton1Click:Connect(function()
-    if autoFarmButton.Text == "Toggle Auto Farm" then
-        autoFarmButton.Text = "Auto Farm Enabled"
-        enableAutoFarm()
-    else
-        autoFarmButton.Text = "Toggle Auto Farm"
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
     end
 end)
+
+-- Connect category button click events
+for i, button in ipairs(categoryButtons) do
+    button.MouseButton1Click:Connect(function()
+        for _, frame in ipairs(categoryFrames) do
+            frame.Visible = false
+        end
+        categoryFrames[i].Visible = true
+    end)
+end
