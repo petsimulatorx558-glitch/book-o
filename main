@@ -1,4 +1,3 @@
--- Book-O Menu for Delta Executor (Mobile-Friendly, with Drag)
 repeat wait() until game and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer:FindFirstChild("PlayerGui")
 local player = game.Players.LocalPlayer
 local pgui = player.PlayerGui
