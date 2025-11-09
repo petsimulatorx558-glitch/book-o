@@ -96,12 +96,14 @@ local espEnabled = false
 local function toggleESP()
     espEnabled = not espEnabled
     if espEnabled then
-        allESP()
+        esp()
     else
         for _, v in pairs(game.Players:GetPlayers()) do
-            for _, part in pairs(v.Character:GetDescendants()) do
-                if part:IsA("BoxHandleAdornment") then
-                    part:Destroy()
+            if v.Name == imposter or v.Name == pig then
+                for _, part in pairs(v.Character:GetDescendants()) do
+                    if part:IsA("BoxHandleAdornment") then
+                        part:Destroy()
+                    end
                 end
             end
         end
@@ -137,36 +139,6 @@ local imposter = findsussy()
 local pig = findpig()
 
 -- ESP STUFF BELOW!
-local function allESP()
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v.Name ~= imposter and v.Name ~= pig then
-            for _, part in pairs(v.Character:GetDescendants()) do
-                if part:IsA("Part") or part:IsA("MeshPart") then
-                    if part.Name == "BoxHandleAdornment" then
-                        part:Destroy()
-                    end
-                    local funny = Instance.new("BoxHandleAdornment") -- INNOCENT ESP
-                    funny.Parent = part
-                    funny.Adornee = part
-                    funny.AlwaysOnTop = true
-                    funny.Transparency = 0.8
-                    funny.ZIndex = 0
-                    funny.Size = part.Size
-                    funny.Color3 = Color3.fromRGB(255, 255, 255)
-                end
-            end
-        end
-    end
-end
-
-local function sussycheck()
-    for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-        if v:IsA("Tool") and v.Name == "Knife" then
-            allESP()
-        end
-    end
-end
-
 local function esp()
     for _, v in pairs(game.Players:GetPlayers()) do
         if v.Name == imposter then
@@ -227,7 +199,6 @@ mt.__namecall = newcclosure(function(self, ...)
                     Icon = "http://www.roblox.com/Thumbs/Avatar.ashx?x=150&y=150&Format=Png&username=" .. pig
                 })
                 esp()
-                sussycheck()
             end
         end)
     end
@@ -241,8 +212,6 @@ local function onPlayerAdded(player)
             esp()
         elseif player.Name == pig then
             esp()
-        else
-            allESP()
         end
     end)
 end
