@@ -1,0 +1,323 @@
+-- Create the main ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game:GetService("CoreGui")
+
+-- Create the menu button
+local menuButton = Instance.new("TextButton")
+menuButton.Size = UDim2.new(0, 80, 0, 40)
+menuButton.Position = UDim2.new(0, 10, 0, 10)
+menuButton.Text = "Menu"
+menuButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+menuButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+menuButton.TextScaled = true
+menuButton.Parent = screenGui
+
+-- Create the main GUI frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 300, 0, 400)
+mainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.Visible = false
+mainFrame.Parent = screenGui
+
+-- Create the dragable area
+local dragArea = Instance.new("Frame")
+dragArea.Size = UDim2.new(1, 0, 0, 40)
+dragArea.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+dragArea.Parent = mainFrame
+
+-- Create the close button (X)
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 40, 0, 40)
+closeButton.Position = UDim2.new(1, -40, 0, 0)
+closeButton.Text = "X"
+closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.TextScaled = true
+closeButton.Parent = dragArea
+
+-- Create the minimize button
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Size = UDim2.new(0, 40, 0, 40)
+minimizeButton.Position = UDim2.new(1, -80, 0, 0)
+minimizeButton.Text = "-"
+minimizeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 200)
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.TextScaled = true
+minimizeButton.Parent = dragArea
+
+-- Create the title label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0, 200, 0, 40)
+titleLabel.Position = UDim2.new(0, 10, 0, 0)
+titleLabel.Text = "Menu"
+titleLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextScaled = true
+titleLabel.Parent = dragArea
+
+-- Create the content area
+local contentArea = Instance.new("Frame")
+contentArea.Size = UDim2.new(1, 0, 1, -40)
+contentArea.Position = UDim2.new(0, 0, 0, 40)
+contentArea.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+contentArea.Parent = mainFrame
+
+-- Create categories
+local categories = {"Home", "ESP", "About"}
+local categoryButtons = {}
+local categoryFrames = {}
+
+for i, category in ipairs(categories) do
+    -- Create category button
+    local categoryButton = Instance.new("TextButton")
+    categoryButton.Size = UDim2.new(0, 100, 0, 50)
+    categoryButton.Position = UDim2.new(0, 10 + (i - 1) * 110, 0, 0)
+    categoryButton.Text = category
+    categoryButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    categoryButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    categoryButton.TextScaled = true
+    categoryButton.Parent = contentArea
+    table.insert(categoryButtons, categoryButton)
+
+    -- Create category frame
+    local categoryFrame = Instance.new("Frame")
+    categoryFrame.Size = UDim2.new(1, 0, 1, -50)
+    categoryFrame.Position = UDim2.new(0, 0, 0, 50)
+    categoryFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    categoryFrame.Visible = i == 1 -- Show only the first category initially
+    categoryFrame.Parent = contentArea
+    table.insert(categoryFrames, categoryFrame)
+end
+
+-- ESP functionality
+local espEnabled = false
+
+local function toggleESP()
+    espEnabled = not espEnabled
+    if espEnabled then
+        allESP()
+    else
+        for _, v in pairs(game.Players:GetPlayers()) do
+            for _, part in pairs(v.Character:GetDescendants()) do
+                if part:IsA("BoxHandleAdornment") then
+                    part:Destroy()
+                end
+            end
+        end
+    end
+end
+
+-- Function to send notifications
+local function Notify(...)
+    game.StarterGui:SetCore('SendNotification', ...)
+end
+
+-- Basic inventory checks for Murderer and Sheriff
+local function findsussy()
+    for _, v in pairs(game.Players:GetChildren()) do
+        if (v.Backpack:FindFirstChild("Knife") or v.Character:FindFirstChild("Knife")) and v.Name == "Tool" then
+            return v.Name
+        end
+    end
+    return nil
+end
+
+local function findpig()
+    for _, v in pairs(game.Players:GetChildren()) do
+        if (v.Backpack:FindFirstChild("Gun") or v.Character:FindFirstChild("Gun")) and v.Name == "Tool" then
+            return v.Name
+        end
+    end
+    return nil
+end
+
+-- Initialize imposter and pig variables
+local imposter = findsussy()
+local pig = findpig()
+
+-- ESP STUFF BELOW!
+local function allESP()
+    for _, v in pairs(game.Players:GetPlayers()) do
+        if v.Name ~= imposter and v.Name ~= pig then
+            for _, part in pairs(v.Character:GetDescendants()) do
+                if part:IsA("Part") or part:IsA("MeshPart") then
+                    if part.Name == "BoxHandleAdornment" then
+                        part:Destroy()
+                    end
+                    local funny = Instance.new("BoxHandleAdornment") -- INNOCENT ESP
+                    funny.Parent = part
+                    funny.Adornee = part
+                    funny.AlwaysOnTop = true
+                    funny.Transparency = 0.8
+                    funny.ZIndex = 0
+                    funny.Size = part.Size
+                    funny.Color3 = Color3.fromRGB(255, 255, 255)
+                end
+            end
+        end
+    end
+end
+
+local function sussycheck()
+    for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+        if v:IsA("Tool") and v.Name == "Knife" then
+            allESP()
+        end
+    end
+end
+
+local function esp()
+    for _, v in pairs(game.Players:GetPlayers()) do
+        if v.Name == imposter then
+            for _, part in pairs(v.Character:GetDescendants()) do
+                if part:IsA("Part") or part:IsA("MeshPart") then
+                    if part.Name == "BoxHandleAdornment" then
+                        part:Destroy()
+                    end
+                    local funny = Instance.new("BoxHandleAdornment") -- imposter esp
+                    funny.Parent = part
+                    funny.Adornee = part
+                    funny.AlwaysOnTop = true
+                    funny.Transparency = 0.8
+                    funny.ZIndex = 0
+                    funny.Size = part.Size
+                    funny.Color3 = Color3.fromRGB(255, 0, 4)
+                end
+            end
+        elseif v.Name == pig then
+            for _, part in pairs(v.Character:GetDescendants()) do
+                if part:IsA("Part") or part:IsA("MeshPart") then
+                    if part.Name == "BoxHandleAdornment" then
+                        part:Destroy()
+                    end
+                    local funny = Instance.new("BoxHandleAdornment") -- pig esp
+                    funny.Parent = part
+                    funny.Adornee = part
+                    funny.AlwaysOnTop = true
+                    funny.Transparency = 0.8
+                    funny.ZIndex = 0
+                    funny.Size = part.Size
+                    funny.Color3 = Color3.fromRGB(0, 12, 255)
+                end
+            end
+        end
+    end
+end
+
+-- Hook into the namecall event
+local mt = getrawmetatable(game)
+setreadonly(mt, false)
+local namecall = mt.__namecall
+mt.__namecall = newcclosure(function(self, ...)
+    local method = getnamecallmethod()
+    local args = {...}
+    if tostring(method) == "InvokeServer" and tostring(self) == "GetChance" then
+        spawn(function()
+            wait(14)
+            if imposter and pig then
+                Notify({
+                    Title = "The Murderer is",
+                    Text = imposter,
+                    Icon = "http://www.roblox.com/Thumbs/Avatar.ashx?x=150&y=150&Format=Png&username=" .. imposter
+                })
+                Notify({
+                    Title = "The Sheriff is",
+                    Text = pig,
+                    Icon = "http://www.roblox.com/Thumbs/Avatar.ashx?x=150&y=150&Format=Png&username=" .. pig
+                })
+                esp()
+                sussycheck()
+            end
+        end)
+    end
+    return namecall(self, table.unpack(args))
+end)
+
+-- Additional features and improvements
+local function onPlayerAdded(player)
+    player.CharacterAdded:Connect(function(character)
+        if player.Name == imposter then
+            esp()
+        elseif player.Name == pig then
+            esp()
+        else
+            allESP()
+        end
+    end)
+end
+
+game.Players.PlayerAdded:Connect(onPlayerAdded)
+for _, player in pairs(game.Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
+
+-- Function to toggle main GUI visibility
+local function toggleMainGui()
+    mainFrame.Visible = not mainFrame.Visible
+end
+
+-- Connect menu button click event
+menuButton.MouseButton1Click:Connect(toggleMainGui)
+
+-- Connect close button click event
+closeButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+end)
+
+-- Connect minimize button click event
+minimizeButton.MouseButton1Click:Connect(function()
+    mainFrame.Size = UDim2.new(0, 300, 0, 40)
+    dragArea.Size = UDim2.new(1, 0, 0, 40)
+    contentArea.Visible = not contentArea.Visible
+end)
+
+-- Make the drag area dragable
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+dragArea.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+dragArea.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
+
+-- Connect category button click events
+for i, button in ipairs(categoryButtons) do
+    button.MouseButton1Click:Connect(function()
+        for _, frame in ipairs(categoryFrames) do
+            frame.Visible = false
+        end
+        categoryFrames[i].Visible = true
+    end)
+end
+
+-- Connect ESP button click event
+categoryButtons[2].MouseButton1Click:Connect(toggleESP)
