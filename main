@@ -6,13 +6,16 @@ screenGui.Parent = game:GetService("CoreGui")
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 300, 0, 400)
 mainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+mainFrame.BorderSizePixel = 1
+mainFrame.BorderColor3 = Color3.fromRGB(50, 50, 50)
 mainFrame.Parent = screenGui
 
 -- Create the dragable area
 local dragArea = Instance.new("Frame")
 dragArea.Size = UDim2.new(1, 0, 0, 40)
-dragArea.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+dragArea.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+dragArea.BorderSizePixel = 0
 dragArea.Parent = mainFrame
 
 -- Create the close button (X)
@@ -40,7 +43,7 @@ local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0, 200, 0, 40)
 titleLabel.Position = UDim2.new(0, 10, 0, 0)
 titleLabel.Text = "Voidware GUI"
-titleLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+titleLabel.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.TextScaled = true
 titleLabel.Parent = dragArea
@@ -49,11 +52,12 @@ titleLabel.Parent = dragArea
 local contentArea = Instance.new("Frame")
 contentArea.Size = UDim2.new(1, 0, 1, -40)
 contentArea.Position = UDim2.new(0, 0, 0, 40)
-contentArea.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+contentArea.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+contentArea.BorderSizePixel = 0
 contentArea.Parent = mainFrame
 
 -- Create categories
-local categories = {"Home", "ESP", "Auto Farm", "Teleport", "Speed Hacks"}
+local categories = {"Home", "ESP", "Auto Farm", "Teleport", "Speed Hacks", "Customization"}
 local categoryButtons = {}
 local categoryFrames = {}
 
@@ -63,7 +67,7 @@ for i, category in ipairs(categories) do
     categoryButton.Size = UDim2.new(0, 100, 0, 50)
     categoryButton.Position = UDim2.new(0, 10 + (i - 1) * 110, 0, 0)
     categoryButton.Text = category
-    categoryButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    categoryButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     categoryButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     categoryButton.TextScaled = true
     categoryButton.Parent = contentArea
@@ -73,7 +77,8 @@ for i, category in ipairs(categories) do
     local categoryFrame = Instance.new("Frame")
     categoryFrame.Size = UDim2.new(1, 0, 1, -50)
     categoryFrame.Position = UDim2.new(0, 0, 0, 50)
-    categoryFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    categoryFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    categoryFrame.BorderSizePixel = 0
     categoryFrame.Visible = i == 1 -- Show only the first category initially
     categoryFrame.Parent = contentArea
     table.insert(categoryFrames, categoryFrame)
@@ -136,4 +141,69 @@ for i, button in ipairs(categoryButtons) do
         end
         categoryFrames[i].Visible = true
     end)
+end
+
+-- Example feature buttons for the "ESP" category
+local espFeatures = {"Player ESP", "Item ESP", "Map Reveal"}
+for i, feature in ipairs(espFeatures) do
+    local featureButton = Instance.new("TextButton")
+    featureButton.Size = UDim2.new(0, 200, 0, 40)
+    featureButton.Position = UDim2.new(0.5, -100, 0, 10 + (i - 1) * 50)
+    featureButton.Text = feature
+    featureButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    featureButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    featureButton.TextScaled = true
+    featureButton.Parent = categoryFrames[2] -- ESP category frame
+end
+
+-- Example feature buttons for the "Auto Farm" category
+local autoFarmFeatures = {"Auto Chop Trees", "Auto Collect Food", "Auto Heal"}
+for i, feature in ipairs(autoFarmFeatures) do
+    local featureButton = Instance.new("TextButton")
+    featureButton.Size = UDim2.new(0, 200, 0, 40)
+    featureButton.Position = UDim2.new(0.5, -100, 0, 10 + (i - 1) * 50)
+    featureButton.Text = feature
+    featureButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    featureButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    featureButton.TextScaled = true
+    featureButton.Parent = categoryFrames[3] -- Auto Farm category frame
+end
+
+-- Example feature buttons for the "Teleport" category
+local teleportFeatures = {"Teleport to Chest", "Teleport to Child", "Teleport to Entity"}
+for i, feature in ipairs(teleportFeatures) do
+    local featureButton = Instance.new("TextButton")
+    featureButton.Size = UDim2.new(0, 200, 0, 40)
+    featureButton.Position = UDim2.new(0.5, -100, 0, 10 + (i - 1) * 50)
+    featureButton.Text = feature
+    featureButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    featureButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    featureButton.TextScaled = true
+    featureButton.Parent = categoryFrames[4] -- Teleport category frame
+end
+
+-- Example feature buttons for the "Speed Hacks" category
+local speedHacksFeatures = {"Infinite Jump", "No Clip", "Fly"}
+for i, feature in ipairs(speedHacksFeatures) do
+    local featureButton = Instance.new("TextButton")
+    featureButton.Size = UDim2.new(0, 200, 0, 40)
+    featureButton.Position = UDim2.new(0.5, -100, 0, 10 + (i - 1) * 50)
+    featureButton.Text = feature
+    featureButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    featureButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    featureButton.TextScaled = true
+    featureButton.Parent = categoryFrames[5] -- Speed Hacks category frame
+end
+
+-- Example feature buttons for the "Customization" category
+local customizationFeatures = {"Change Theme", "Manage Resources", "Reveal Hidden Areas"}
+for i, feature in ipairs(customizationFeatures) do
+    local featureButton = Instance.new("TextButton")
+    featureButton.Size = UDim2.new(0, 200, 0, 40)
+    featureButton.Position = UDim2.new(0.5, -100, 0, 10 + (i - 1) * 50)
+    featureButton.Text = feature
+    featureButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    featureButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    featureButton.TextScaled = true
+    featureButton.Parent = categoryFrames[6] -- Customization category frame
 end
